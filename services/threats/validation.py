@@ -8,7 +8,7 @@ Input validation. Every function returns (clean_data, errors):
 import ipaddress
 import re
 
-from services.threat_service.models import (
+from services.threats.models import (
     REQUIRED_FIELDS,
     SEARCH_FIELDS,
     SEVERITY_LEVELS,

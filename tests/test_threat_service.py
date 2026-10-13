@@ -4,7 +4,7 @@ import sqlite3
 import pytest
 
 from database.init_db import init_database
-from services.threat_service.app import ROUTE_PREFIX, create_app
+from services.threats.app import ROUTE_PREFIX, create_app
 from shared import auth, users_client
 
 # Test data uses reserved documentation values (203.0.113.x IPs, .example domains)

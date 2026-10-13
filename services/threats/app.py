@@ -3,7 +3,7 @@ Service 4 - Threat Intelligence Service
 Owner: Sleiman Koumaira
 
 Run from the project root:
-    python -m services.threat_service.app
+    python -m services.threats.app
 The service listens on http://127.0.0.1:5004/sleiman-koumaira/threats
 """
 import sqlite3
@@ -11,8 +11,8 @@ from pathlib import Path
 
 from flask import Blueprint, Flask, current_app, g, request
 
-from services.threat_service.repository import ThreatRepository
-from services.threat_service.validation import (
+from services.threats.repository import ThreatRepository
+from services.threats.validation import (
     validate_new_threat,
     validate_search_criteria,
     validate_threat_update,

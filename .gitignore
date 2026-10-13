@@ -21,3 +21,6 @@ build/
 database/data/
 docs/evidence/private/
 
+
+# Local Postman copy with dev tokens filled in (tokens expire, never commit them)
+postman/local/

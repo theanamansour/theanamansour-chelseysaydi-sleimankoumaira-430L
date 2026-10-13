@@ -1,11 +1,11 @@
 """Automated tests for Service 4 - Threat Intelligence Service (Sleiman Koumaira)."""
 import sqlite3
 
-import jwt
 import pytest
 
+from database.init_db import init_database
 from services.threat_service.app import ROUTE_PREFIX, create_app
-from shared.auth import ADMIN, create_access_token
+from shared import auth, users_client
 
 # Test data uses reserved documentation values (203.0.113.x IPs, .example domains)
 # so we never label a real website or address as malicious.
@@ -48,7 +48,13 @@ ALL_THREATS = [IP_THREAT, DOMAIN_THREAT, HASH_THREAT, SIGNATURE_THREAT, OTHER_TH
 
 
 @pytest.fixture
-def client(database_path, audit_events):
+def database_path(tmp_path):
+    """A brand-new threats database for every test, so tests never touch the real data."""
+    return init_database("threats", str(tmp_path / "threats.db"))
+
+
+@pytest.fixture
+def client(database_path):
     return create_app(database_path).test_client()
 
 
@@ -193,28 +199,28 @@ def test_request_without_token_gets_401(client, audit_events, method, url):
     assert audit_events[-1]["action"] == "UNAUTHENTICATED_ACCESS"
 
 
-def test_invalid_token_gets_401(client):
+def test_invalid_token_gets_401(client, audit_events):
     response = client.get(f"{ROUTE_PREFIX}/threats", headers={"Authorization": "Bearer not-a-real-token"})
     assert response.status_code == 401
-    assert response.get_json()["message"] == "Invalid authentication token"
+    assert response.get_json()["message"] == "Invalid token"  # message comes from Service 1
+    assert audit_events[-1]["action"] == "UNAUTHENTICATED_ACCESS"
 
 
 def test_expired_token_gets_401(client):
-    expired = create_access_token(1, "test_admin", ADMIN, expires_in_minutes=-1)
-    response = client.get(f"{ROUTE_PREFIX}/threats", headers={"Authorization": f"Bearer {expired}"})
+    response = client.get(f"{ROUTE_PREFIX}/threats", headers={"Authorization": "Bearer expired-token"})
     assert response.status_code == 401
-    assert "expired" in response.get_json()["message"]
+    assert response.get_json()["message"] == "Token expired"
 
 
-def test_token_signed_with_another_secret_gets_401(client):
-    forged = jwt.encode(
-        {"user_id": 1, "username": "fake_admin", "role": ADMIN, "exp": 4102444800},
-        "attacker-guessed-secret-of-enough-length",
-        algorithm="HS256",
-    )
+def test_users_service_down_gets_503(client, headers, monkeypatch):
+    def service_down(authorization_header):
+        raise auth.AuthServiceUnavailable()
 
-    response = client.get(f"{ROUTE_PREFIX}/threats", headers={"Authorization": f"Bearer {forged}"})
-    assert response.status_code == 401
+    monkeypatch.setattr(auth, "verify_token", service_down)
+    response = client.get(f"{ROUTE_PREFIX}/threats", headers=headers["admin"])
+
+    assert response.status_code == 503
+    assert response.get_json()["status"] == "error"
 
 
 # Expected status code for every (endpoint, role) pair. 403 = role not allowed.
@@ -433,6 +439,42 @@ def test_deleted_id_is_never_reused(client, headers):
     response = client.post(f"{ROUTE_PREFIX}/threats", json=DOMAIN_THREAT, headers=headers["admin"])
 
     assert response.get_json()["data"]["threat_id"] == 2
+
+
+# ---------- Threat alerts (notifications through Service 8) ----------
+
+@pytest.mark.parametrize("threat", [IP_THREAT, DOMAIN_THREAT], ids=["High", "Critical"])
+def test_high_and_critical_threats_alert_active_admins_and_analysts(client, headers, sent_notifications, threat):
+    response = client.post(f"{ROUTE_PREFIX}/threats", json=threat, headers=headers["admin"])
+
+    assert response.status_code == 201
+    assert response.get_json()["message"] == "Threat indicator added successfully; threat alert sent to 3 user(s)"
+    # Users 1 (admin), 2 and 5 (analysts). Not the employee, the auditor, or the suspended analyst 6.
+    assert sorted(n["user_id"] for n in sent_notifications) == [1, 2, 5]
+    alert = sent_notifications[0]
+    assert alert["notification_type"] == "Threat Alert"
+    assert alert["severity"] == threat["severity"]
+    assert threat["threat_value"] in alert["title"]
+
+
+@pytest.mark.parametrize("threat", [HASH_THREAT, SIGNATURE_THREAT], ids=["Low", "Medium"])
+def test_low_and_medium_threats_send_no_alert(client, headers, sent_notifications, threat):
+    response = client.post(f"{ROUTE_PREFIX}/threats", json=threat, headers=headers["admin"])
+
+    assert response.get_json()["message"] == "Threat indicator added successfully"
+    assert sent_notifications == []
+
+
+def test_threat_is_still_saved_when_users_service_is_down(client, headers, sent_notifications, monkeypatch):
+    def users_down(authorization_header):
+        raise users_client.UsersServiceUnavailable()
+
+    monkeypatch.setattr(users_client, "list_users", users_down)
+    response = client.post(f"{ROUTE_PREFIX}/threats", json=IP_THREAT, headers=headers["admin"])
+
+    assert response.status_code == 201
+    assert response.get_json()["message"].endswith("threat alert sent to 0 user(s)")
+    assert client.get(f"{ROUTE_PREFIX}/threats/1", headers=headers["admin"]).status_code == 200
 
 
 # ---------- Errors outside our routes still use the JSON format ----------

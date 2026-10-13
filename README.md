@@ -146,6 +146,32 @@ Detailed Service 3 request formats and errors are documented in
 `docs/service3-incident-management.md`. An importable collection is available at
 `postman/Chelsea_Saydi_Service3.postman_collection.json`.
 
+## Service 5: Security Audit Logging
+
+Service 5 is implemented by Chelsea Saydi. It stores immutable security events and
+provides:
+
+- `POST /chelsea-saydi/logs` — create a security log
+- `GET /chelsea-saydi/logs` — retrieve all logs
+- `GET /chelsea-saydi/logs/{id}` — retrieve a specific log
+- `GET /chelsea-saydi/logs/search` — filter logs
+- `DELETE /chelsea-saydi/logs/{id}` — delete a log as an administrator
+- `GET /chelsea-saydi/logs/user/{user_id}` — retrieve one user's activity
+
+Start Service 1 for authentication, then run:
+
+```bash
+python -m services.audit_logs.app
+```
+
+Service 5 listens on `http://127.0.0.1:5005`. Trusted services authenticate log
+creation with `X-Service-Key`; administrators may instead use a bearer token. Configure
+the shared secret with `INTERNAL_SERVICE_KEY`.
+
+Detailed documentation is available at
+`docs/service5-security-audit-logging.md`. The Postman collection is
+`postman/Chelsea_Saydi_Service5.postman_collection.json`.
+
 ## Testing
 
 Run the automated test suite from the repository root:

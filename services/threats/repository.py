@@ -7,7 +7,7 @@ change the meaning of a query (this is what prevents SQL injection).
 """
 from contextlib import closing
 
-from services.threat_service.models import UPDATABLE_FIELDS, Threat
+from services.threats.models import UPDATABLE_FIELDS, Threat
 from shared.database import get_connection
 
 # Search rules: these fields must match exactly...

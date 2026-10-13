@@ -1,0 +1,1684 @@
+{
+  "info": {
+    "name": "Sleiman Koumaira - Services 2, 4, 8",
+    "description": "Postman requests for the services implemented by Sleiman Koumaira. Every route starts with /sleiman-koumaira.\n\nBefore running: start the service, run `python -m shared.dev_tokens`, and paste the four tokens into the collection variables (Variables tab).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Service 4 - Threat Intelligence (Sleiman Koumaira)",
+      "description": "Threat Intelligence Service, implemented by Sleiman Koumaira. Base URL: http://127.0.0.1:5004/sleiman-koumaira",
+      "item": [
+        {
+          "name": "1. Main requests",
+          "item": [
+            {
+              "name": "Sleiman Koumaira - Add Threat Indicator (IP Address)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Security Administrator adds a malicious IP address (High). The new ID is saved into the variable threat_id.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"IP Address\",\n  \"threat_value\": \"203.0.113.45\",\n  \"description\": \"Command-and-control server of a botnet\",\n  \"severity\": \"High\",\n  \"source\": \"AbuseIPDB\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "if (pm.response.code === 201) {",
+                      "    pm.collectionVariables.set(\"threat_id\", pm.response.json().data.threat_id);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Add Threat Indicator (Domain)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Adds a phishing domain (Critical). Domains are stored in lowercase.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"Domain\",\n  \"threat_value\": \"secure-bank-login.example\",\n  \"description\": \"Phishing site copying a bank login page\",\n  \"severity\": \"Critical\",\n  \"source\": \"PhishTank\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Add Threat Indicator (File Hash)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Adds a SHA-256 file hash (Low): 64 hexadecimal characters.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"File Hash\",\n  \"threat_value\": \"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f\",\n  \"description\": \"EICAR antivirus test file (SHA-256)\",\n  \"severity\": \"Low\",\n  \"source\": \"VirusTotal\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Add Threat Indicator (Malware Signature)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Adds a malware signature (Medium).  \n**Expected status:** 201",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"Malware Signature\",\n  \"threat_value\": \"Trojan.GenericKD.4614\",\n  \"description\": \"Generic trojan detection signature\",\n  \"severity\": \"Medium\",\n  \"source\": \"Internal SOC\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Add Threat Indicator (Other Indicators)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Adds an 'Other Indicators' entry (Medium). Its ID is saved as delete_threat_id for the delete request.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"Other Indicators\",\n  \"threat_value\": \"powershell -EncodedCommand\",\n  \"description\": \"Obfuscated PowerShell command often used by attackers\",\n  \"severity\": \"Medium\",\n  \"source\": \"Internal SOC\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "if (pm.response.code === 201) {",
+                      "    pm.collectionVariables.set(\"delete_threat_id\", pm.response.json().data.threat_id);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Retrieve All Threat Indicators",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Retrieve All Threat Indicators\n\n**Purpose:** Returns every stored threat with its information, severity, source and date added.\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** None. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [threat, ...]}` (empty list when there are no threats)\n\n**Possible error responses:** 401 missing, invalid or expired token | 403 role not allowed\n\n---\n**This request:** Security Analyst lists every stored threat.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{analyst_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Retrieve Specific Threat Indicator",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/{{threat_id}}",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "{{threat_id}}"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Retrieve Specific Threat Indicator\n\n**Purpose:** Returns the complete information of one threat indicator.\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats/{id}`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** `id` (path, integer): the threat ID. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"data\": {threat}}`\n\n**Possible error responses:** 401 missing, invalid or expired token | 403 role not allowed | 404 no threat with this ID\n\n---\n**This request:** Auditor reads one existing threat. Also used as the 'before' and 'after' evidence for the update.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auditor_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Threat Indicators (by type)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/search?threat_type=Domain",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "threat_type",
+                      "value": "Domain"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Threat Indicators\n\n**Purpose:** Searches threat records. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\n- `threat_type` (exact): IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `severity` (exact): Low | Medium | High | Critical\n- `threat_value` (contains, ignores case)\n- `source` (contains, ignores case)\nHeader `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching threats]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid type/severity | 401 missing, invalid or expired token | 403 role not allowed\n\n---\n**This request:** Exact match on threat type.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{analyst_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Threat Indicators (by severity)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/search?severity=Medium",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "severity",
+                      "value": "Medium"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Threat Indicators\n\n**Purpose:** Searches threat records. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\n- `threat_type` (exact): IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `severity` (exact): Low | Medium | High | Critical\n- `threat_value` (contains, ignores case)\n- `source` (contains, ignores case)\nHeader `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching threats]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid type/severity | 401 missing, invalid or expired token | 403 role not allowed\n\n---\n**This request:** Exact match on severity.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{analyst_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Threat Indicators (by source, partial)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/search?source=internal",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "source",
+                      "value": "internal"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Threat Indicators\n\n**Purpose:** Searches threat records. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\n- `threat_type` (exact): IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `severity` (exact): Low | Medium | High | Critical\n- `threat_value` (contains, ignores case)\n- `source` (contains, ignores case)\nHeader `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching threats]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid type/severity | 401 missing, invalid or expired token | 403 role not allowed\n\n---\n**This request:** Source only needs to contain 'internal', ignoring upper/lower case.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Threat Indicators (by value, partial)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/search?threat_value=203.0.113",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "threat_value",
+                      "value": "203.0.113"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Threat Indicators\n\n**Purpose:** Searches threat records. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\n- `threat_type` (exact): IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `severity` (exact): Low | Medium | High | Critical\n- `threat_value` (contains, ignores case)\n- `source` (contains, ignores case)\nHeader `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching threats]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid type/severity | 401 missing, invalid or expired token | 403 role not allowed\n\n---\n**This request:** Finds every indicator whose value contains 203.0.113.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Threat Indicators (multiple criteria)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/search?threat_type=Other Indicators&severity=Medium&source=Internal SOC",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "threat_type",
+                      "value": "Other Indicators"
+                    },
+                    {
+                      "key": "severity",
+                      "value": "Medium"
+                    },
+                    {
+                      "key": "source",
+                      "value": "Internal SOC"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Threat Indicators\n\n**Purpose:** Searches threat records. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\n- `threat_type` (exact): IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `severity` (exact): Low | Medium | High | Critical\n- `threat_value` (contains, ignores case)\n- `source` (contains, ignores case)\nHeader `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching threats]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid type/severity | 401 missing, invalid or expired token | 403 role not allowed\n\n---\n**This request:** Type, severity and source must all match.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auditor_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Update Threat Information",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/{{threat_id}}",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "{{threat_id}}"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Update Threat Information\n\n**Purpose:** Updates the description, severity and/or source of an existing threat.\n\n**Method:** PUT  \n**Endpoint:** `/sleiman-koumaira/threats/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON with one or more of:\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n`threat_type` and `threat_value` cannot be changed.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Threat information updated successfully\", \"data\": {updated threat}}`\n\n**Possible error responses:** 400 validation failed or field not updatable | 401 missing, invalid or expired token | 403 role not allowed | 404 no threat with this ID\n\n---\n**This request:** Changes severity High -> Critical, the description and the source. Run 'Retrieve Specific Threat Indicator' before and after.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"severity\": \"Critical\",\n  \"description\": \"Confirmed command-and-control server\",\n  \"source\": \"CERT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Delete Threat Indicator",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/{{delete_threat_id}}",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "{{delete_threat_id}}"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Delete Threat Indicator\n\n**Purpose:** Removes a threat record.\n\n**Method:** DELETE  \n**Endpoint:** `/sleiman-koumaira/threats/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Threat indicator {id} deleted successfully\"}`\n\n**Possible error responses:** 401 missing, invalid or expired token | 403 role not allowed | 404 no threat with this ID\n\n---\n**This request:** Security Administrator deletes the 'Other Indicators' entry.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "2. Validation, permission and error tests",
+          "item": [
+            {
+              "name": "Sleiman Koumaira - Reject Duplicate Threat",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Same type and value as an existing threat -> 409 Conflict.  \n**Expected status:** 409",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"Domain\",\n  \"threat_value\": \"secure-bank-login.example\",\n  \"description\": \"Phishing site copying a bank login page\",\n  \"severity\": \"Critical\",\n  \"source\": \"PhishTank\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 409\", function () {",
+                      "    pm.response.to.have.status(409);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Duplicate Written in Capitals",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Domains are normalized to lowercase, so this is still a duplicate.  \n**Expected status:** 409",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"Domain\",\n  \"threat_value\": \"SECURE-BANK-LOGIN.example\",\n  \"description\": \"Phishing site copying a bank login page\",\n  \"severity\": \"Critical\",\n  \"source\": \"PhishTank\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 409\", function () {",
+                      "    pm.response.to.have.status(409);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid IP Address",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** 999 is not a valid IPv4 number.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"IP Address\",\n  \"threat_value\": \"999.10.10.10\",\n  \"description\": \"Command-and-control server of a botnet\",\n  \"severity\": \"High\",\n  \"source\": \"AbuseIPDB\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid Domain",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Spaces are not allowed in a domain.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"Domain\",\n  \"threat_value\": \"not a domain\",\n  \"description\": \"Phishing site copying a bank login page\",\n  \"severity\": \"Critical\",\n  \"source\": \"PhishTank\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid File Hash",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Not hexadecimal and wrong length.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"File Hash\",\n  \"threat_value\": \"xyz123\",\n  \"description\": \"EICAR antivirus test file (SHA-256)\",\n  \"severity\": \"Low\",\n  \"source\": \"VirusTotal\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid Threat Type",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** 'URL' is not one of the supported threat types.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"URL\",\n  \"threat_value\": \"198.51.100.10\",\n  \"description\": \"Command-and-control server of a botnet\",\n  \"severity\": \"High\",\n  \"source\": \"AbuseIPDB\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid Severity",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Severity must be Low, Medium, High or Critical.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"IP Address\",\n  \"threat_value\": \"198.51.100.7\",\n  \"description\": \"Command-and-control server of a botnet\",\n  \"severity\": \"Extreme\",\n  \"source\": \"AbuseIPDB\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Missing Required Fields",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Lists every missing field.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"IP Address\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Empty Request Body",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** An empty JSON object is rejected.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Request Without Token",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Retrieve All Threat Indicators\n\n**Purpose:** Returns every stored threat with its information, severity, source and date added.\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** None. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [threat, ...]}` (empty list when there are no threats)\n\n**Possible error responses:** 401 missing, invalid or expired token | 403 role not allowed\n\n---\n**This request:** No Authorization header -> 401 Unauthorized.  \n**Expected status:** 401",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 401\", function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Analyst Adding Threat",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add Threat Indicator\n\n**Purpose:** Adds a new cybersecurity threat indicator (malicious IP, suspicious domain, malware hash, signature or other indicator).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON, all fields required:\n- `threat_type`: IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `threat_value`: must match the type (valid IPv4/IPv6, valid domain, or MD5/SHA-1/SHA-256 hex hash)\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Threat indicator added successfully\", \"data\": {threat_id, threat_type, threat_value, description, severity, source, date_added}}`\n\n**Possible error responses:** 400 validation failed (missing/invalid/unknown fields) | 401 missing, invalid or expired token | 403 role not allowed | 409 same threat type and value already stored\n\n---\n**This request:** Analysts may only view and search -> 403 Forbidden. Compare with 'Add Threat Indicator' (same API, Security Administrator, 201).  \n**Expected status:** 403",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{analyst_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_type\": \"IP Address\",\n  \"threat_value\": \"198.51.100.8\",\n  \"description\": \"Command-and-control server of a botnet\",\n  \"severity\": \"High\",\n  \"source\": \"AbuseIPDB\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 403\", function () {",
+                      "    pm.response.to.have.status(403);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Regular User Viewing Threats",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Retrieve All Threat Indicators\n\n**Purpose:** Returns every stored threat with its information, severity, source and date added.\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** None. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [threat, ...]}` (empty list when there are no threats)\n\n**Possible error responses:** 401 missing, invalid or expired token | 403 role not allowed\n\n---\n**This request:** Regular users have no access to threat intelligence. Compare with 'Retrieve All Threat Indicators' (same API, Security Analyst, 200).  \n**Expected status:** 403",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{user_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 403\", function () {",
+                      "    pm.response.to.have.status(403);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Auditor Updating Threat",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/{{threat_id}}",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "{{threat_id}}"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Update Threat Information\n\n**Purpose:** Updates the description, severity and/or source of an existing threat.\n\n**Method:** PUT  \n**Endpoint:** `/sleiman-koumaira/threats/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON with one or more of:\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n`threat_type` and `threat_value` cannot be changed.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Threat information updated successfully\", \"data\": {updated threat}}`\n\n**Possible error responses:** 400 validation failed or field not updatable | 401 missing, invalid or expired token | 403 role not allowed | 404 no threat with this ID\n\n---\n**This request:** Auditors are read-only.  \n**Expected status:** 403",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auditor_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"severity\": \"Low\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 403\", function () {",
+                      "    pm.response.to.have.status(403);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Analyst Deleting Threat",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/{{threat_id}}",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "{{threat_id}}"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Delete Threat Indicator\n\n**Purpose:** Removes a threat record.\n\n**Method:** DELETE  \n**Endpoint:** `/sleiman-koumaira/threats/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Threat indicator {id} deleted successfully\"}`\n\n**Possible error responses:** 401 missing, invalid or expired token | 403 role not allowed | 404 no threat with this ID\n\n---\n**This request:** Only the Security Administrator may delete. Run 'Retrieve Specific Threat Indicator' afterwards: the threat still exists.  \n**Expected status:** 403",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{analyst_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 403\", function () {",
+                      "    pm.response.to.have.status(403);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Retrieve Non-existing Threat",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/99999",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "99999"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Retrieve Specific Threat Indicator\n\n**Purpose:** Returns the complete information of one threat indicator.\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats/{id}`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** `id` (path, integer): the threat ID. Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"data\": {threat}}`\n\n**Possible error responses:** 401 missing, invalid or expired token | 403 role not allowed | 404 no threat with this ID\n\n---\n**This request:** No threat with this ID -> 404 Not Found.  \n**Expected status:** 404",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {",
+                      "    pm.response.to.have.status(404);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Changing Threat Value",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/{{threat_id}}",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "{{threat_id}}"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Update Threat Information\n\n**Purpose:** Updates the description, severity and/or source of an existing threat.\n\n**Method:** PUT  \n**Endpoint:** `/sleiman-koumaira/threats/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON with one or more of:\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n`threat_type` and `threat_value` cannot be changed.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Threat information updated successfully\", \"data\": {updated threat}}`\n\n**Possible error responses:** 400 validation failed or field not updatable | 401 missing, invalid or expired token | 403 role not allowed | 404 no threat with this ID\n\n---\n**This request:** Type and value identify the threat and cannot be updated.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"threat_value\": \"198.51.100.9\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid Severity in Update",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/{{threat_id}}",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "{{threat_id}}"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Update Threat Information\n\n**Purpose:** Updates the description, severity and/or source of an existing threat.\n\n**Method:** PUT  \n**Endpoint:** `/sleiman-koumaira/threats/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Header `Authorization: Bearer <token>` (token from login).\n\n**Request body:** JSON with one or more of:\n- `description`: text, max 1000 characters\n- `severity`: Low | Medium | High | Critical\n- `source`: text, max 100 characters\n`threat_type` and `threat_value` cannot be changed.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Threat information updated successfully\", \"data\": {updated threat}}`\n\n**Possible error responses:** 400 validation failed or field not updatable | 401 missing, invalid or expired token | 403 role not allowed | 404 no threat with this ID\n\n---\n**This request:** Update validation: severity must be one of the four levels.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"severity\": \"Extreme\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Search Without Criteria",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{threat_url}}/sleiman-koumaira/threats/search",
+                  "host": [
+                    "{{threat_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "threats",
+                    "search"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Threat Indicators\n\n**Purpose:** Searches threat records. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/threats/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\n- `threat_type` (exact): IP Address | Domain | File Hash | Malware Signature | Other Indicators\n- `severity` (exact): Low | Medium | High | Critical\n- `threat_value` (contains, ignores case)\n- `source` (contains, ignores case)\nHeader `Authorization: Bearer <token>` (token from login).\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching threats]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid type/severity | 401 missing, invalid or expired token | 403 role not allowed\n\n---\n**This request:** At least one search parameter is required.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "threat_url",
+      "value": "http://127.0.0.1:5004"
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "analyst_token",
+      "value": ""
+    },
+    {
+      "key": "user_token",
+      "value": ""
+    },
+    {
+      "key": "auditor_token",
+      "value": ""
+    },
+    {
+      "key": "threat_id",
+      "value": "1"
+    },
+    {
+      "key": "delete_threat_id",
+      "value": "5"
+    }
+  ]
+}

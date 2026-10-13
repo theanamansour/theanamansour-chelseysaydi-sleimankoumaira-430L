@@ -1649,6 +1649,1348 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Service 2 - Asset Management (Sleiman Koumaira)",
+      "description": "Asset Management Service, implemented by Sleiman Koumaira. Base URL: http://127.0.0.1:5002/sleiman-koumaira\n\nRole permissions are not enforced yet. They are added when Service 1's shared token verification is integrated; the unauthorized-access requests will be added then.",
+      "item": [
+        {
+          "name": "1. Main requests",
+          "item": [
+            {
+              "name": "Sleiman Koumaira - Add New Asset (Server)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** Adds a Critical web server. The new ID is saved into the variable asset_id.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Main Web Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"192.0.2.10\",\n  \"operating_system\": \"Ubuntu 22.04\",\n  \"owner_id\": 1,\n  \"department\": \"IT\",\n  \"location\": \"Beirut Data Center\",\n  \"criticality\": \"Critical\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "if (pm.response.code === 201) {",
+                      "    pm.collectionVariables.set(\"asset_id\", pm.response.json().data.asset_id);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Add New Asset (Workstation)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** Adds a Low-criticality HR laptop.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"HR Laptop 07\",\n  \"asset_type\": \"Workstation\",\n  \"ip_address\": \"192.0.2.57\",\n  \"operating_system\": \"Windows 11\",\n  \"owner_id\": 3,\n  \"department\": \"Human Resources\",\n  \"location\": \"Floor 2\",\n  \"criticality\": \"Low\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Add New Asset (Database)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** Adds a High-criticality database with status Under Maintenance.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Customer Database\",\n  \"asset_type\": \"Database\",\n  \"ip_address\": \"198.51.100.20\",\n  \"operating_system\": \"Red Hat Enterprise Linux 9\",\n  \"owner_id\": 1,\n  \"department\": \"IT\",\n  \"location\": \"Beirut Data Center\",\n  \"criticality\": \"High\",\n  \"status\": \"Under Maintenance\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Add New Asset (Application)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** Adds an application without operating system or location; status defaults to Active.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Payroll Application\",\n  \"asset_type\": \"Application\",\n  \"ip_address\": \"198.51.100.35\",\n  \"owner_id\": 2,\n  \"department\": \"Finance\",\n  \"criticality\": \"High\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Add New Asset (Network Device)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** Adds a Critical core router.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Core Router\",\n  \"asset_type\": \"Network Device\",\n  \"ip_address\": \"192.0.2.1\",\n  \"operating_system\": \"Cisco IOS XE\",\n  \"owner_id\": 1,\n  \"department\": \"IT\",\n  \"location\": \"Server Room A\",\n  \"criticality\": \"Critical\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Add New Asset (Cloud Resource)",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** Adds an Inactive cloud resource with an IPv6 address. Its ID is saved as delete_asset_id.  \n**Expected status:** 201",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Backup Cloud Storage\",\n  \"asset_type\": \"Cloud Resource\",\n  \"ip_address\": \"2001:db8::25\",\n  \"owner_id\": 2,\n  \"department\": \"Finance\",\n  \"location\": \"AWS eu-central-1\",\n  \"criticality\": \"Medium\",\n  \"status\": \"Inactive\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "if (pm.response.code === 201) {",
+                      "    pm.collectionVariables.set(\"delete_asset_id\", pm.response.json().data.asset_id);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Retrieve All Assets",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Retrieve All Assets\n\n**Purpose:** Returns every asset with its details, criticality level and current status.\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator, Auditor\n\n**Required parameters:** None. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [asset, ...]}` (empty list when there are no assets)\n\n**Possible error responses:** None specific to this API (unknown URL 404, wrong method 405)\n\n---\n**This request:** Lists every asset with criticality and status.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Retrieve Specific Asset",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/{{asset_id}}",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "{{asset_id}}"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Retrieve Specific Asset\n\n**Purpose:** Returns the complete information of one asset.\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/{id}`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** `id` (path, integer): the asset ID. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"data\": {asset}}`\n\n**Possible error responses:** 404 no asset with this ID\n\n---\n**This request:** Reads one existing asset. Also used as the 'before' and 'after' evidence for the update.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Assets (by name, partial)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/search?asset_name=server",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "asset_name",
+                      "value": "server"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Assets\n\n**Purpose:** Searches assets. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\\n- `asset_type` (exact): Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `criticality` (exact): Low | Medium | High | Critical\\n- `asset_name` (contains, ignores case)\\n- `ip_address` (contains, e.g. a subnet like 192.0.2.)\\n- `department` (contains, ignores case)\\nAuthentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching assets]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid asset_type/criticality\n\n---\n**This request:** Name contains 'server', ignoring case.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Assets (by type)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/search?asset_type=Database",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "asset_type",
+                      "value": "Database"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Assets\n\n**Purpose:** Searches assets. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\\n- `asset_type` (exact): Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `criticality` (exact): Low | Medium | High | Critical\\n- `asset_name` (contains, ignores case)\\n- `ip_address` (contains, e.g. a subnet like 192.0.2.)\\n- `department` (contains, ignores case)\\nAuthentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching assets]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid asset_type/criticality\n\n---\n**This request:** Exact match on asset type.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Assets (by IP address, partial)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/search?ip_address=192.0.2.",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "ip_address",
+                      "value": "192.0.2."
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Assets\n\n**Purpose:** Searches assets. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\\n- `asset_type` (exact): Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `criticality` (exact): Low | Medium | High | Critical\\n- `asset_name` (contains, ignores case)\\n- `ip_address` (contains, e.g. a subnet like 192.0.2.)\\n- `department` (contains, ignores case)\\nAuthentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching assets]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid asset_type/criticality\n\n---\n**This request:** Every asset in the 192.0.2. subnet.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Assets (by department)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/search?department=finance",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "department",
+                      "value": "finance"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Assets\n\n**Purpose:** Searches assets. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\\n- `asset_type` (exact): Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `criticality` (exact): Low | Medium | High | Critical\\n- `asset_name` (contains, ignores case)\\n- `ip_address` (contains, e.g. a subnet like 192.0.2.)\\n- `department` (contains, ignores case)\\nAuthentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching assets]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid asset_type/criticality\n\n---\n**This request:** Department contains 'finance', ignoring case.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Assets (by criticality)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/search?criticality=Critical",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "criticality",
+                      "value": "Critical"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Assets\n\n**Purpose:** Searches assets. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\\n- `asset_type` (exact): Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `criticality` (exact): Low | Medium | High | Critical\\n- `asset_name` (contains, ignores case)\\n- `ip_address` (contains, e.g. a subnet like 192.0.2.)\\n- `department` (contains, ignores case)\\nAuthentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching assets]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid asset_type/criticality\n\n---\n**This request:** Exact match on criticality.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Search Assets (multiple criteria)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/search?department=IT&criticality=High",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "department",
+                      "value": "IT"
+                    },
+                    {
+                      "key": "criticality",
+                      "value": "High"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Assets\n\n**Purpose:** Searches assets. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\\n- `asset_type` (exact): Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `criticality` (exact): Low | Medium | High | Critical\\n- `asset_name` (contains, ignores case)\\n- `ip_address` (contains, e.g. a subnet like 192.0.2.)\\n- `department` (contains, ignores case)\\nAuthentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching assets]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid asset_type/criticality\n\n---\n**This request:** Department IT AND criticality High.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Update Asset Information",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/{{asset_id}}",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "{{asset_id}}"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Update Asset Information\n\n**Purpose:** Updates the name, owner, department, criticality and/or status of an asset.\n\n**Method:** PUT  \n**Endpoint:** `/sleiman-koumaira/assets/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON with one or more of:\\n- `asset_name`: text, max 100\\n- `owner_id`: positive whole number\\n- `department`: text, max 100\\n- `criticality`: Low | Medium | High | Critical\\n- `status`: Active | Inactive | Under Maintenance\\nOther fields (type, IP, OS, location) cannot be changed.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Asset information updated successfully\", \"data\": {updated asset}}`\n\n**Possible error responses:** 400 validation failed or field not updatable | 404 no asset with this ID\n\n---\n**This request:** Changes all five updatable fields of the web server. Run 'Retrieve Specific Asset' before and after.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Main Web Server (Primary)\",\n  \"owner_id\": 2,\n  \"department\": \"Security Operations\",\n  \"criticality\": \"High\",\n  \"status\": \"Under Maintenance\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Delete Asset",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/{{delete_asset_id}}",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "{{delete_asset_id}}"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Delete Asset\n\n**Purpose:** Removes an asset from the system.\n\n**Method:** DELETE  \n**Endpoint:** `/sleiman-koumaira/assets/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Asset {id} deleted successfully\"}`\n\n**Possible error responses:** 404 no asset with this ID\n\n---\n**This request:** Deletes the cloud resource.  \n**Expected status:** 200",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "2. Validation and error tests",
+          "item": [
+            {
+              "name": "Sleiman Koumaira - Reject Invalid IP Address",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** 999 is not a valid IPv4 number.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Main Web Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"999.1.1.1\",\n  \"operating_system\": \"Ubuntu 22.04\",\n  \"owner_id\": 1,\n  \"department\": \"IT\",\n  \"location\": \"Beirut Data Center\",\n  \"criticality\": \"Critical\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid Asset Type",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** 'Printer' is not one of the supported asset types.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Main Web Server\",\n  \"asset_type\": \"Printer\",\n  \"ip_address\": \"192.0.2.10\",\n  \"operating_system\": \"Ubuntu 22.04\",\n  \"owner_id\": 1,\n  \"department\": \"IT\",\n  \"location\": \"Beirut Data Center\",\n  \"criticality\": \"Critical\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid Criticality",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** Criticality must be Low, Medium, High or Critical.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Main Web Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"192.0.2.10\",\n  \"operating_system\": \"Ubuntu 22.04\",\n  \"owner_id\": 1,\n  \"department\": \"IT\",\n  \"location\": \"Beirut Data Center\",\n  \"criticality\": \"Extreme\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid Status",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** Status must be Active, Inactive or Under Maintenance.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Main Web Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"192.0.2.10\",\n  \"operating_system\": \"Ubuntu 22.04\",\n  \"owner_id\": 1,\n  \"department\": \"IT\",\n  \"location\": \"Beirut Data Center\",\n  \"criticality\": \"Critical\",\n  \"status\": \"Broken\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid Owner ID",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** The owner must be identified by a positive whole number.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Main Web Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"192.0.2.10\",\n  \"operating_system\": \"Ubuntu 22.04\",\n  \"owner_id\": \"abc\",\n  \"department\": \"IT\",\n  \"location\": \"Beirut Data Center\",\n  \"criticality\": \"Critical\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Missing Required Fields",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** Lists every missing required field.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset_name\": \"Lonely Asset\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Empty Request Body",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Add New Asset\n\n**Purpose:** Adds a new organizational asset (server, workstation, database, application, network device or cloud resource).\n\n**Method:** POST  \n**Endpoint:** `/sleiman-koumaira/assets`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** None in the URL. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON.\\nRequired:\\n- `asset_name`: text, max 100\\n- `asset_type`: Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `ip_address`: valid IPv4 or IPv6\\n- `department`: text, max 100\\n- `owner_id`: positive whole number (the owner's user ID)\\n- `criticality`: Low | Medium | High | Critical\\nOptional:\\n- `operating_system`: text, max 100\\n- `location`: text, max 100\\n- `status`: Active | Inactive | Under Maintenance (default Active)\n\n**Success response:** 201 Created: `{\"status\": \"success\", \"message\": \"Asset added successfully\", \"data\": {asset_id, asset_name, asset_type, ip_address, operating_system, owner_id, department, location, criticality, status}}`\n\n**Possible error responses:** 400 validation failed (missing, invalid or unknown fields)\n\n---\n**This request:** An empty JSON object is rejected.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Retrieve Non-existing Asset",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/99999",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "99999"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Retrieve Specific Asset\n\n**Purpose:** Returns the complete information of one asset.\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/{id}`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** `id` (path, integer): the asset ID. Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"data\": {asset}}`\n\n**Possible error responses:** 404 no asset with this ID\n\n---\n**This request:** No asset with this ID -> 404 Not Found.  \n**Expected status:** 404",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {",
+                      "    pm.response.to.have.status(404);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Update Non-existing Asset",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/99999",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "99999"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Update Asset Information\n\n**Purpose:** Updates the name, owner, department, criticality and/or status of an asset.\n\n**Method:** PUT  \n**Endpoint:** `/sleiman-koumaira/assets/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON with one or more of:\\n- `asset_name`: text, max 100\\n- `owner_id`: positive whole number\\n- `department`: text, max 100\\n- `criticality`: Low | Medium | High | Critical\\n- `status`: Active | Inactive | Under Maintenance\\nOther fields (type, IP, OS, location) cannot be changed.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Asset information updated successfully\", \"data\": {updated asset}}`\n\n**Possible error responses:** 400 validation failed or field not updatable | 404 no asset with this ID\n\n---\n**This request:** No asset with this ID -> 404 Not Found.  \n**Expected status:** 404",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"Inactive\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {",
+                      "    pm.response.to.have.status(404);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Delete Non-existing Asset",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/99999",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "99999"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Delete Asset\n\n**Purpose:** Removes an asset from the system.\n\n**Method:** DELETE  \n**Endpoint:** `/sleiman-koumaira/assets/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Asset {id} deleted successfully\"}`\n\n**Possible error responses:** 404 no asset with this ID\n\n---\n**This request:** No asset with this ID -> 404 Not Found.  \n**Expected status:** 404",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {",
+                      "    pm.response.to.have.status(404);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Updating IP Address",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/{{asset_id}}",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "{{asset_id}}"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Update Asset Information\n\n**Purpose:** Updates the name, owner, department, criticality and/or status of an asset.\n\n**Method:** PUT  \n**Endpoint:** `/sleiman-koumaira/assets/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON with one or more of:\\n- `asset_name`: text, max 100\\n- `owner_id`: positive whole number\\n- `department`: text, max 100\\n- `criticality`: Low | Medium | High | Critical\\n- `status`: Active | Inactive | Under Maintenance\\nOther fields (type, IP, OS, location) cannot be changed.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Asset information updated successfully\", \"data\": {updated asset}}`\n\n**Possible error responses:** 400 validation failed or field not updatable | 404 no asset with this ID\n\n---\n**This request:** The IP address is not one of the updatable fields.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ip_address\": \"192.0.2.99\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Invalid Criticality in Update",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/{{asset_id}}",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "{{asset_id}}"
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Update Asset Information\n\n**Purpose:** Updates the name, owner, department, criticality and/or status of an asset.\n\n**Method:** PUT  \n**Endpoint:** `/sleiman-koumaira/assets/{id}`  \n**Allowed roles:** Security Administrator\n\n**Required parameters:** `id` (path, integer). Authentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** JSON with one or more of:\\n- `asset_name`: text, max 100\\n- `owner_id`: positive whole number\\n- `department`: text, max 100\\n- `criticality`: Low | Medium | High | Critical\\n- `status`: Active | Inactive | Under Maintenance\\nOther fields (type, IP, OS, location) cannot be changed.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"message\": \"Asset information updated successfully\", \"data\": {updated asset}}`\n\n**Possible error responses:** 400 validation failed or field not updatable | 404 no asset with this ID\n\n---\n**This request:** Update validation: criticality must be one of the four levels.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"criticality\": \"Extreme\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Search Without Criteria",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/search",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "search"
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Assets\n\n**Purpose:** Searches assets. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\\n- `asset_type` (exact): Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `criticality` (exact): Low | Medium | High | Critical\\n- `asset_name` (contains, ignores case)\\n- `ip_address` (contains, e.g. a subnet like 192.0.2.)\\n- `department` (contains, ignores case)\\nAuthentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching assets]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid asset_type/criticality\n\n---\n**This request:** At least one search parameter is required.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Sleiman Koumaira - Reject Unknown Search Parameter",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{asset_url}}/sleiman-koumaira/assets/search?criticallity=High",
+                  "host": [
+                    "{{asset_url}}"
+                  ],
+                  "path": [
+                    "sleiman-koumaira",
+                    "assets",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "criticallity",
+                      "value": "High"
+                    }
+                  ]
+                },
+                "header": [],
+                "description": "**Owner:** Sleiman Koumaira\n\n**API:** Search Assets\n\n**Purpose:** Searches assets. All given criteria must match (AND).\n\n**Method:** GET  \n**Endpoint:** `/sleiman-koumaira/assets/search`  \n**Allowed roles:** Security Administrator, Security Analyst, Auditor\n\n**Required parameters:** Query parameters, at least one required:\\n- `asset_type` (exact): Server | Workstation | Database | Application | Network Device | Cloud Resource\\n- `criticality` (exact): Low | Medium | High | Critical\\n- `asset_name` (contains, ignores case)\\n- `ip_address` (contains, e.g. a subnet like 192.0.2.)\\n- `department` (contains, ignores case)\\nAuthentication is not enforced yet: the role check is added when Service 1's shared token verification is integrated.\n\n**Request body:** None.\n\n**Success response:** 200 OK: `{\"status\": \"success\", \"count\": N, \"data\": [matching assets]}`\n\n**Possible error responses:** 400 no criteria, unknown parameter, or invalid asset_type/criticality\n\n---\n**This request:** A misspelled parameter is rejected instead of being ignored.  \n**Expected status:** 400",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "variable": [
@@ -1679,6 +3021,18 @@
     {
       "key": "delete_threat_id",
       "value": "5"
+    },
+    {
+      "key": "asset_url",
+      "value": "http://127.0.0.1:5002"
+    },
+    {
+      "key": "asset_id",
+      "value": "1"
+    },
+    {
+      "key": "delete_asset_id",
+      "value": "6"
     }
   ]
 }

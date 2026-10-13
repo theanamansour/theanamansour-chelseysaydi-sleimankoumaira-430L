@@ -3,7 +3,7 @@ import pytest
 
 from database.init_db import init_database
 from shared import audit_client
-from shared.auth import ADMIN, ANALYST, AUDITOR, REGULAR_USER, create_access_token
+from shared.auth import ADMIN, ANALYST, AUDITOR, REGULAR_EMPLOYEE, create_access_token
 
 
 @pytest.fixture
@@ -32,6 +32,6 @@ def headers():
     return {
         "admin": bearer(1, "test_admin", ADMIN),
         "analyst": bearer(2, "test_analyst", ANALYST),
-        "user": bearer(3, "test_employee", REGULAR_USER),
+        "user": bearer(3, "test_employee", REGULAR_EMPLOYEE),
         "auditor": bearer(4, "test_auditor", AUDITOR),
     }

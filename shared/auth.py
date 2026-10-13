@@ -13,12 +13,12 @@ from flask import current_app, g, request
 from shared import audit_client, config
 from shared.responses import error_response
 
-# The four roles. Service 1 must store exactly these strings in the users table.
+# The four roles, spelled exactly as Service 1 (Users and Identity) stores them.
 ADMIN = "Security Administrator"
 ANALYST = "Security Analyst"
-REGULAR_USER = "Regular User"
+REGULAR_EMPLOYEE = "Regular Employee"
 AUDITOR = "Auditor"
-ALL_ROLES = (ADMIN, ANALYST, REGULAR_USER, AUDITOR)
+ALL_ROLES = (ADMIN, ANALYST, REGULAR_EMPLOYEE, AUDITOR)
 
 
 def create_access_token(user_id, username, role, expires_in_minutes=60):

@@ -6,12 +6,12 @@ Service 1 (login) is built by a teammate. Until POST /users/login exists, run
 and paste the tokens into Postman. Once Service 1 works, delete this file and
 get tokens by logging in instead.
 """
-from shared.auth import ADMIN, ANALYST, AUDITOR, REGULAR_USER, create_access_token
+from shared.auth import ADMIN, ANALYST, AUDITOR, REGULAR_EMPLOYEE, create_access_token
 
 DEV_USERS = [
     (1, "dev_admin", ADMIN),
     (2, "dev_analyst", ANALYST),
-    (3, "dev_employee", REGULAR_USER),
+    (3, "dev_employee", REGULAR_EMPLOYEE),
     (4, "dev_auditor", AUDITOR),
 ]
 

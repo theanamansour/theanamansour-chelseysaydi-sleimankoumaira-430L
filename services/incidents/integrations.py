@@ -10,7 +10,7 @@ ASSET_SERVICE_URL = os.environ.get(
     "ASSET_SERVICE_URL", "http://127.0.0.1:5002/sleiman-koumaira"
 )
 AUDIT_SERVICE_URL = os.environ.get(
-    "AUDIT_SERVICE_URL", "http://127.0.0.1:5005/logs"
+    "AUDIT_SERVICE_URL", "http://127.0.0.1:5005/chelsea-saydi/logs"
 )
 INTERNAL_SERVICE_KEY = os.environ.get(
     "INTERNAL_SERVICE_KEY", "dev-only-internal-service-key"

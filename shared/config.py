@@ -13,6 +13,7 @@ DATA_FOLDER = PROJECT_ROOT / "database" / "data"
 
 # Every service keeps its own SQLite database (the team's design: one database per service).
 DATABASE_PATHS = {
+    "assets": os.environ.get("ASSETS_DATABASE_PATH", str(DATA_FOLDER / "assets.db")),
     "threats": os.environ.get("THREATS_DATABASE_PATH", str(DATA_FOLDER / "threats.db")),
 }
 

@@ -3,7 +3,9 @@ import sqlite3
 
 import pytest
 
+from database.init_db import init_database
 from services.assets.app import ROUTE_PREFIX, create_app
+from shared import auth, users_client
 
 URL = f"{ROUTE_PREFIX}/assets"
 
@@ -71,8 +73,17 @@ ALL_ASSETS = [WEB_SERVER, HR_LAPTOP, CUSTOMER_DB, PAYROLL_APP, CORE_ROUTER, CLOU
 
 
 @pytest.fixture
+def database_path(tmp_path):
+    """A brand-new assets database for every test, so tests never touch the real data."""
+    return init_database("assets", str(tmp_path / "assets.db"))
+
+
+@pytest.fixture
 def client(database_path):
-    return create_app(database_path).test_client()
+    """A test client that sends the Security Administrator's token unless a test sends another one."""
+    test_client = create_app(database_path).test_client()
+    test_client.environ_base["HTTP_AUTHORIZATION"] = "Bearer admin-token"
+    return test_client
 
 
 @pytest.fixture
@@ -365,6 +376,128 @@ def test_deleted_id_is_never_reused(client):
     response = client.post(URL, json=HR_LAPTOP)
 
     assert response.get_json()["data"]["asset_id"] == 2
+
+
+# ---------- Owner must be a real user of Service 1 ----------
+
+def test_owner_that_does_not_exist_is_rejected(client, database_path):
+    response = client.post(URL, json={**WEB_SERVER, "owner_id": 99})
+
+    assert response.status_code == 400
+    assert response.get_json()["errors"] == ["owner_id 99 does not match any registered user"]
+    with sqlite3.connect(database_path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM assets").fetchone()[0] == 0
+
+
+def test_update_to_an_owner_that_does_not_exist_is_rejected(client):
+    client.post(URL, json=WEB_SERVER)
+
+    response = client.put(f"{URL}/1", json={"owner_id": 99})
+
+    assert response.status_code == 400
+    assert client.get(f"{URL}/1").get_json()["data"]["owner_id"] == 1
+
+
+def test_owner_check_needs_users_service(client, monkeypatch):
+    def users_down(authorization_header):
+        raise users_client.UsersServiceUnavailable()
+
+    monkeypatch.setattr(users_client, "list_users", users_down)
+    response = client.post(URL, json=WEB_SERVER)
+
+    assert response.status_code == 503
+    assert "Service 1" in response.get_json()["message"]
+
+
+# ---------- Authentication (401) and authorization (403) ----------
+
+ENDPOINTS = [
+    ("POST", URL),
+    ("GET", URL),
+    ("GET", f"{URL}/1"),
+    ("GET", f"{URL}/search?criticality=Critical"),
+    ("PUT", f"{URL}/1"),
+    ("DELETE", f"{URL}/1"),
+]
+
+
+@pytest.mark.parametrize("method, url", ENDPOINTS)
+def test_request_without_token_gets_401(database_path, audit_events, method, url):
+    anonymous = create_app(database_path).test_client()
+
+    response = anonymous.open(url, method=method, json={})
+
+    assert response.status_code == 401
+    assert audit_events[-1]["action"] == "UNAUTHENTICATED_ACCESS"
+
+
+def test_invalid_token_gets_401(client):
+    response = client.get(URL, headers={"Authorization": "Bearer not-a-real-token"})
+    assert response.status_code == 401
+    assert response.get_json()["message"] == "Invalid token"
+
+
+def test_users_service_down_gets_503(client, monkeypatch):
+    def service_down(authorization_header):
+        raise auth.AuthServiceUnavailable()
+
+    monkeypatch.setattr(auth, "verify_token", service_down)
+    assert client.get(URL).status_code == 503
+
+
+# Expected status code for every (endpoint, role) pair. 403 = role not allowed.
+PERMISSION_MATRIX = {
+    ("POST", URL): {"admin": 201, "analyst": 403, "auditor": 403, "user": 403},
+    ("GET", URL): {"admin": 200, "analyst": 403, "auditor": 200, "user": 403},
+    ("GET", f"{URL}/1"): {"admin": 200, "analyst": 200, "auditor": 200, "user": 403},
+    ("GET", f"{URL}/search?criticality=Critical"): {"admin": 200, "analyst": 200, "auditor": 200, "user": 403},
+    ("PUT", f"{URL}/1"): {"admin": 200, "analyst": 403, "auditor": 403, "user": 403},
+    ("DELETE", f"{URL}/1"): {"admin": 200, "analyst": 403, "auditor": 403, "user": 403},
+}
+REQUEST_BODIES = {"POST": HR_LAPTOP, "PUT": {"status": "Inactive"}}
+
+
+@pytest.mark.parametrize(
+    "method, url, role, expected_status",
+    [
+        (method, url, role, status)
+        for (method, url), roles in PERMISSION_MATRIX.items()
+        for role, status in roles.items()
+    ],
+)
+def test_role_permissions(client, headers, audit_events, method, url, role, expected_status):
+    client.post(URL, json=WEB_SERVER)  # becomes asset 1 (added by the admin)
+
+    response = client.open(url, method=method, json=REQUEST_BODIES.get(method), headers=headers[role])
+
+    assert response.status_code == expected_status
+    if expected_status == 403:
+        assert response.get_json()["message"] == "User does not have permission to perform this operation"
+        assert audit_events[-1]["action"] == "PERMISSION_DENIED"
+
+
+def test_analyst_cannot_delete_and_asset_survives(client, headers):
+    client.post(URL, json=WEB_SERVER)
+
+    assert client.delete(f"{URL}/1", headers=headers["analyst"]).status_code == 403
+    assert client.get(f"{URL}/1").status_code == 200
+
+
+# ---------- Automatic audit logs (Service 5) ----------
+
+def test_changes_are_sent_to_the_audit_log(client, audit_events):
+    client.post(URL, json=WEB_SERVER)
+    client.put(f"{URL}/1", json={"criticality": "High"})
+    client.delete(f"{URL}/1")
+
+    actions = [(event["action"], event["severity"], event["user_id"]) for event in audit_events]
+    assert actions == [
+        ("CREATE_ASSET", "Information", 1),
+        ("UPDATE_ASSET", "Information", 1),
+        ("DELETE_ASSET", "Warning", 1),
+    ]
+    assert "criticality: 'Critical' -> 'High'" in audit_events[1]["description"]
+    assert all(event["related_service"] == "Asset Management Service" for event in audit_events)
 
 
 # ---------- Routes and errors outside our routes ----------

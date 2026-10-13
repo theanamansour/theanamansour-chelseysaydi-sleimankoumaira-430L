@@ -9,8 +9,9 @@ CREATE TABLE IF NOT EXISTS assets (
                                            'Network Device', 'Cloud Resource')),
     ip_address       TEXT    NOT NULL,
     operating_system TEXT,                -- optional: not every asset has an operating system
-    -- The user (from Service 1) who owns the asset. The FOREIGN KEY to users(user_id)
-    -- is added when Service 1's users table is connected during integration.
+    -- The user who owns the asset: a users.id from Service 1 (Users and Identity).
+    -- Service 1 keeps its own database, so this cannot be a SQLite FOREIGN KEY; instead the
+    -- API checks with Service 1 that the user exists before saving (a logical foreign key).
     owner_id         INTEGER NOT NULL,
     department       TEXT    NOT NULL,
     location         TEXT,                -- optional

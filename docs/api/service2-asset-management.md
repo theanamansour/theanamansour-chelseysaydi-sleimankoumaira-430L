@@ -3,10 +3,11 @@
 Base URL: `http://127.0.0.1:5002/sleiman-koumaira`
 Every route includes the full name of the student who implemented it (`/sleiman-koumaira`).
 
-**Authentication and role permissions:** the allowed roles are listed for every endpoint.
-They are enforced once Service 1's shared token verification is integrated (agreed with
-the Service 1 owner). Until then the endpoints accept requests without a token, and no
-unauthorized-access evidence is produced for this service.
+**Authentication:** every endpoint needs the header `Authorization: Bearer <token>`. The token
+comes from Service 1's login (`POST /theana-mansour/users/login`, Theana Mansour). For every
+request this service sends the token to Service 1's `POST /theana-mansour/auth/verify`, which
+checks the signature, the one-hour expiry and that the account is still Active, and returns the
+user's ID, username and current role. The role is then compared with the allowed roles below.
 
 **Allowed values**
 
@@ -25,7 +26,7 @@ unauthorized-access evidence is produced for this service.
 | `asset_type` | text | yes | no | One of the asset types above |
 | `ip_address` | text | yes | no | Valid IPv4 or IPv6 address, stored in standard form |
 | `operating_system` | text or null | no | no | Max 100 characters ("if applicable") |
-| `owner_id` | integer | yes | yes | Positive whole number: the owner's user ID in Service 1 |
+| `owner_id` | integer | yes | yes | Positive whole number, and must be the ID of an existing user in Service 1 |
 | `department` | text | yes | yes | Not blank, max 100 characters |
 | `location` | text or null | no | no | Max 100 characters |
 | `criticality` | text | yes | yes | One of the criticality levels above |
@@ -42,7 +43,9 @@ unauthorized-access evidence is produced for this service.
 | 400 | Validation failed (missing, empty, invalid, unknown or non-updatable fields; bad search criteria) |
 | 404 | No asset with this ID, or unknown URL |
 | 405 | HTTP method not supported on this URL |
-| 401 / 403 | Added with Service 1 integration: missing/invalid token, or role not allowed |
+| 401 | Missing token, or Service 1 rejected it (invalid, expired, or account not Active); the message comes from Service 1 |
+| 403 | Valid token, but the role is not allowed to call this endpoint |
+| 503 | Service 1 is unavailable, so the caller (or the owner) cannot be checked |
 
 The example responses below were captured from the running service.
 
@@ -94,7 +97,7 @@ The example responses below were captured from the running service.
 }
 ```
 
-**Possible errors:** 400. Example (all problems are reported together):
+**Possible errors:** 400, 401, 403, 503. Example (all problems are reported together):
 
 ```json
 HTTP 400
@@ -190,7 +193,7 @@ HTTP 400
 }
 ```
 
-**Possible errors:** 404.
+**Possible errors:** 401, 403, 404.
 
 ```json
 HTTP 404
@@ -246,7 +249,7 @@ Example: `GET /sleiman-koumaira/assets/search?department=finance`
 }
 ```
 
-**Possible errors:** 400 (no criteria, unknown parameter, invalid type or criticality).
+**Possible errors:** 400 (no criteria, unknown parameter, invalid type or criticality), 401, 403.
 
 ```json
 HTTP 400
@@ -301,7 +304,7 @@ HTTP 400
 }
 ```
 
-**Possible errors:** 400, 404.
+**Possible errors:** 400, 401, 403, 404, 503.
 
 ```json
 HTTP 400
@@ -336,7 +339,7 @@ HTTP 400
 }
 ```
 
-**Possible errors:** 404 (no asset with this ID).
+**Possible errors:** 401, 403, 404 (no asset with this ID).
 
 ---
 
@@ -344,13 +347,24 @@ HTTP 400
 
 | Relationship (assignment) | How it is handled |
 |---|---|
-| Each asset has one owner; one user owns many assets | `owner_id` stores the owner's user ID. The `FOREIGN KEY (owner_id) REFERENCES users(user_id)` is added when Service 1's users table is connected. |
+| Each asset has one owner; one user owns many assets | `owner_id` stores the owner's user ID from Service 1. Each service has its own SQLite database, so this is a **logical foreign key**: before saving (POST, or PUT that changes the owner) the service calls Service 1's `GET /theana-mansour/users` with the administrator's token and rejects an ID that does not exist (400). |
 | Department | Stored as text on the asset (the assignment defines no departments table). |
-| Related incidents (Service 3) | `incidents.asset_id` will reference `assets.asset_id`. |
-| Related vulnerabilities (Service 7) | `vulnerabilities.affected_asset_id` will reference `assets.asset_id`. |
+| Related incidents (Service 3) | `incidents.asset_id` will hold an `asset_id` from this service. |
+| Related vulnerabilities (Service 7) | `vulnerabilities.affected_asset_id` will hold an `asset_id` from this service. |
 
-Still to connect with the team (not simulated in this service):
+## Automatic audit logging
 
-- Role checks (401/403) through Service 1's token verification.
-- Automatic audit logs to Service 5 for asset changes and permission violations.
-- What happens when an asset that still has incidents or vulnerabilities is deleted.
+Every data change and every rejected access attempt is sent to the Security Audit Logging
+Service (Service 5) with the internal `X-Service-Key` header. Until Service 5 is running the
+service prints `Audit service unreachable, log not saved` and continues.
+
+| Event | `action` | `severity` |
+|---|---|---|
+| Asset added | `CREATE_ASSET` | Information |
+| Asset updated (old -> new values) | `UPDATE_ASSET` | Information |
+| Asset deleted | `DELETE_ASSET` | Warning |
+| Request without a valid token (401) | `UNAUTHENTICATED_ACCESS` | Warning |
+| Role not allowed (403) | `PERMISSION_DENIED` | Warning |
+
+Still to agree with the team: what happens when an asset that incidents or vulnerabilities
+still refer to is deleted (those services keep their own databases).

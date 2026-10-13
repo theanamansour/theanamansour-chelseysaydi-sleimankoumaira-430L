@@ -16,6 +16,7 @@ SCHEMA_FOLDER = Path(__file__).resolve().parent / "schema"
 
 # Which schema file builds which service's database.
 SERVICE_SCHEMAS = {
+    "assets": "02_assets.sql",
     "threats": "04_threats.sql",
 }
 

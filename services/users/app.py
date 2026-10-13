@@ -2,6 +2,7 @@
 import os
 import re
 import secrets
+import sqlite3
 from functools import wraps
 from pathlib import Path
 
@@ -21,9 +22,12 @@ AUDITOR = "Auditor"
 
 ROLES = [ADMIN, ANALYST, EMPLOYEE, AUDITOR]
 STATUSES = ["Active", "Inactive", "Suspended"]
+TOKEN_MAX_AGE = 3600
 
 
 def normalize_role(role):
+    if isinstance(role, str):
+        role = role.strip()
     if role == "Regular User":
         return EMPLOYEE
     return role
@@ -46,6 +50,12 @@ init_db()
 
 def error(message, status):
     return jsonify({"status": "error", "message": message}), status
+
+
+def no_store(response):
+    """Prevent authentication responses from being cached."""
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 def public_user(user):
@@ -88,31 +98,57 @@ class UserService:
     def by_username(username):
         with get_db() as db:
             return db.execute(
-                "SELECT * FROM users WHERE username = ?", (username,)
+                "SELECT * FROM users WHERE username = ? COLLATE NOCASE",
+                (username,)
             ).fetchone()
 
     @staticmethod
     def by_login(login):
         with get_db() as db:
             return db.execute(
-                "SELECT * FROM users WHERE username = ? OR email = ?",
+                "SELECT * FROM users "
+                "WHERE username = ? COLLATE NOCASE "
+                "OR email = ? COLLATE NOCASE",
                 (login, login)
             ).fetchone()
+
+    @staticmethod
+    def registration_conflict(username, email):
+        with get_db() as db:
+            return db.execute(
+                "SELECT username, email FROM users "
+                "WHERE username = ? COLLATE NOCASE "
+                "OR email = ? COLLATE NOCASE",
+                (username, email)
+            ).fetchone()
+
+    @staticmethod
+    def email_in_use(email, excluding_user_id):
+        with get_db() as db:
+            return db.execute(
+                "SELECT id FROM users "
+                "WHERE email = ? COLLATE NOCASE AND id != ?",
+                (email, excluding_user_id)
+            ).fetchone() is not None
 
 
 def authenticate():
     header = request.headers.get("Authorization", "")
 
-    if not header.startswith("Bearer "):
+    scheme, separator, token = header.partition(" ")
+    token = token.strip()
+
+    if scheme.lower() != "bearer" or not separator or not token:
         return None, error("Authentication token required", 401)
 
-    token = header[7:].strip()
-
     try:
-        user_id = serializer.loads(token, max_age=3600)
+        user_id = serializer.loads(token, max_age=TOKEN_MAX_AGE)
     except SignatureExpired:
         return None, error("Token expired", 401)
     except BadSignature:
+        return None, error("Invalid token", 401)
+
+    if not isinstance(user_id, int) or isinstance(user_id, bool):
         return None, error("Invalid token", 401)
 
     user = UserService.by_id(user_id)
@@ -121,6 +157,26 @@ def authenticate():
         return None, error("Account is unavailable", 401)
 
     return user, None
+
+
+# Verify authentication token for other services
+@app.post(PREFIX + "/auth/verify")
+def verify_token():
+    user, problem = authenticate()
+
+    if problem:
+        response, status = problem
+        payload = response.get_json()
+        payload["valid"] = False
+        return no_store(jsonify(payload)), status
+
+    response = jsonify({
+        "valid": True,
+        "user_id": user["id"],
+        "username": user["username"],
+        "role": user["role"]
+    })
+    return no_store(response), 200
 
 
 def protected(allowed_roles):
@@ -152,17 +208,24 @@ def register():
 
     fields = [
         "full_name", "username", "email",
-        "password", "department"
+        "password", "department", "role"
     ]
 
     for field in fields:
         if not isinstance(data.get(field), str) or not data[field].strip():
             return error(f"{field} is required", 400)
 
-    if not valid_email(data["email"]):
+    full_name = data["full_name"].strip()
+    username = data["username"].strip()
+    email = data["email"].strip().lower()
+    password = data["password"]
+    department = data["department"].strip()
+    role = normalize_role(data["role"])
+
+    if not valid_email(email):
         return error("Invalid email format", 400)
 
-    if not valid_password(data["password"]):
+    if not valid_password(password):
         return error(
             "Password must have at least 8 characters, "
             "including a letter and a number", 400
@@ -171,9 +234,6 @@ def register():
     # Public registration always creates regular employees.
     # An administrator may register users with another role.
     
-    role = normalize_role(data.get("role", EMPLOYEE))
-
-
     if role not in ROLES:
         return error("Invalid role", 400)
 
@@ -186,6 +246,13 @@ def register():
         if current_user["role"] != ADMIN:
             return error("Only administrators can assign roles", 403)
 
+    conflict = UserService.registration_conflict(username, email)
+
+    if conflict is not None:
+        if conflict["username"].casefold() == username.casefold():
+            return error("Username already exists", 409)
+        return error("Email already exists", 409)
+
     try:
         with get_db() as db:
             cursor = db.execute("""
@@ -194,18 +261,18 @@ def register():
                  department, role, account_status)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (
-                data["full_name"].strip(),
-                data["username"].strip(),
-                data["email"].strip(),
-                generate_password_hash(data["password"]),
-                data["department"].strip(),
+                full_name,
+                username,
+                email,
+                generate_password_hash(password),
+                department,
                 role,
                 "Active"
             ))
 
             user_id = cursor.lastrowid
 
-    except __import__("sqlite3").IntegrityError:
+    except sqlite3.IntegrityError:
         return error("Username or email already exists", 409)
 
     return jsonify({
@@ -227,10 +294,15 @@ def login():
     login_value = data.get("login")
     password = data.get("password")
 
-    if not isinstance(login_value, str) or not isinstance(password, str):
+    if (
+        not isinstance(login_value, str)
+        or not login_value.strip()
+        or not isinstance(password, str)
+        or not password
+    ):
         return error("Login and password are required", 400)
 
-    user = UserService.by_login(login_value)
+    user = UserService.by_login(login_value.strip())
 
     if user is None or not check_password_hash(
         user["password_hash"], password
@@ -249,12 +321,13 @@ def login():
             (user["id"],)
         )
 
-    return jsonify({
+    response = jsonify({
         "message": "Login successful",
         "token": token,
         "role": user["role"],
         "user_id": user["id"]
-    }), 200
+    })
+    return no_store(response), 200
 
 
 # 3. UPDATE USER
@@ -284,8 +357,13 @@ def update_user(current_user, user_id):
     ):
         return error("Update values cannot be empty", 400)
 
-    if "email" in data and not valid_email(data["email"]):
-        return error("Invalid email format", 400)
+    if "email" in data:
+        email = data["email"].strip().lower()
+        if not valid_email(email):
+            return error("Invalid email format", 400)
+        if UserService.email_in_use(email, user_id):
+            return error("Email already exists", 409)
+        data["email"] = email
 
     try:
         with get_db() as db:
@@ -294,7 +372,7 @@ def update_user(current_user, user_id):
                     f"UPDATE users SET {field} = ? WHERE id = ?",
                     (value.strip(), user_id)
                 )
-    except __import__("sqlite3").IntegrityError:
+    except sqlite3.IntegrityError:
         return error("Email already exists", 409)
 
     return jsonify({
@@ -337,7 +415,7 @@ def get_users(current_user):
 @protected([ADMIN, EMPLOYEE, AUDITOR])
 def get_user(current_user, username):
     if current_user["role"] == EMPLOYEE:
-        if current_user["username"] != username:
+        if current_user["username"].casefold() != username.casefold():
             return error("You may only view your own profile", 403)
 
     user = UserService.by_username(username)
@@ -360,7 +438,7 @@ def update_role(current_user, user_id):
 
     data = request.get_json(silent=True)
 
-    if not isinstance(data, dict):
+    if not isinstance(data, dict) or set(data) != {"role"}:
         return error("Invalid role", 400)
 
     role = normalize_role(data.get("role"))
@@ -391,7 +469,12 @@ def update_status(current_user, user_id):
 
     data = request.get_json(silent=True)
 
-    if not isinstance(data, dict) or data.get("status") not in STATUSES:
+    if not isinstance(data, dict) or set(data) != {"status"}:
+        return error("Invalid account status", 400)
+
+    status = data["status"].strip() if isinstance(data["status"], str) else None
+
+    if status not in STATUSES:
         return error("Invalid account status", 400)
 
     if current_user["id"] == user_id:
@@ -400,10 +483,20 @@ def update_status(current_user, user_id):
     with get_db() as db:
         db.execute(
             "UPDATE users SET account_status = ? WHERE id = ?",
-            (data["status"], user_id)
+            (status, user_id)
         )
 
     return jsonify({"message": "Account status updated successfully"})
+
+
+@app.errorhandler(404)
+def route_not_found(_exception):
+    return error("Resource not found", 404)
+
+
+@app.errorhandler(405)
+def method_not_allowed(_exception):
+    return error("Method not allowed", 405)
 
 
 

@@ -1,15 +1,24 @@
 
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
 
 DATABASE = Path(__file__).resolve().parent / "users.db"
 
 
+@contextmanager
 def get_db():
     connection = sqlite3.connect(DATABASE)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
-    return connection
+    try:
+        yield connection
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
 
 
 def init_db():
@@ -28,6 +37,14 @@ def init_db():
                 last_login_at TEXT
             )
         """)
+        db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS "
+            "users_username_nocase ON users(username COLLATE NOCASE)"
+        )
+        db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS "
+            "users_email_nocase ON users(email COLLATE NOCASE)"
+        )
 
 
 if __name__ == "__main__":

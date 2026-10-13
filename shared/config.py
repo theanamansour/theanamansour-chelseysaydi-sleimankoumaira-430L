@@ -15,6 +15,7 @@ DATA_FOLDER = PROJECT_ROOT / "database" / "data"
 DATABASE_PATHS = {
     "assets": os.environ.get("ASSETS_DATABASE_PATH", str(DATA_FOLDER / "assets.db")),
     "threats": os.environ.get("THREATS_DATABASE_PATH", str(DATA_FOLDER / "threats.db")),
+    "notifications": os.environ.get("NOTIFICATIONS_DATABASE_PATH", str(DATA_FOLDER / "notifications.db")),
 }
 
 # Port of each service. 5000 is skipped because macOS uses it for AirPlay Receiver.

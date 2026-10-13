@@ -18,6 +18,7 @@ SCHEMA_FOLDER = Path(__file__).resolve().parent / "schema"
 SERVICE_SCHEMAS = {
     "assets": "02_assets.sql",
     "threats": "04_threats.sql",
+    "notifications": "08_notifications.sql",
 }
 
 

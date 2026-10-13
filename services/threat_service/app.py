@@ -17,7 +17,7 @@ from services.threat_service.validation import (
     validate_search_criteria,
     validate_threat_update,
 )
-from shared import audit_client, config
+from shared import audit_client, config, notification_client, users_client
 from shared.auth import ADMIN, ANALYST, AUDITOR, require_roles
 from shared.responses import error_response, register_error_handlers, success_response
 
@@ -27,11 +27,48 @@ SERVICE_NAME = "Threat Intelligence Service"
 # The blueprint adds this prefix to every route below, e.g. /threats -> /sleiman-koumaira/threats
 ROUTE_PREFIX = "/sleiman-koumaira"
 
+# Threat alerts (Service 8 notifications) are sent for these severities, to these roles.
+ALERT_SEVERITIES = ("High", "Critical")
+ALERT_RECIPIENT_ROLES = (ADMIN, ANALYST)
+
 threat_routes = Blueprint("threat_routes", __name__)
 
 
 def get_repository():
     return ThreatRepository(current_app.config["DATABASE_PATH"])
+
+
+def send_threat_alerts(threat):
+    """
+    Notify every active Security Administrator and Security Analyst about a High or Critical
+    threat. Recipients come from Service 1; notifications are created in Service 8.
+    Returns how many alerts were created. A failure here never cancels the threat itself.
+    """
+    if threat.severity not in ALERT_SEVERITIES:
+        return 0
+    try:
+        users = users_client.list_users(g.authorization_header)
+    except users_client.UsersServiceUnavailable:
+        return 0
+
+    recipients = [
+        user["id"] for user in users
+        if user.get("role") in ALERT_RECIPIENT_ROLES and user.get("account_status") == "Active"
+    ]
+    sent = 0
+    for user_id in recipients:
+        created = notification_client.send_notification(
+            user_id=user_id,
+            title=f"{threat.severity} threat: {threat.threat_type} {threat.threat_value}",
+            message=(
+                f"A {threat.severity} {threat.threat_type} threat indicator ({threat.threat_value}) "
+                f"was added from {threat.source}: {threat.description}"
+            ),
+            notification_type="Threat Alert",
+            severity=threat.severity,
+        )
+        sent += created
+    return sent
 
 
 def record_change(action, description, severity="Information"):
@@ -73,7 +110,10 @@ def add_threat():
         "CREATE_THREAT",
         f"Added threat {threat.threat_id}: {threat.threat_type} '{threat.threat_value}' ({threat.severity})",
     )
-    return success_response(threat.to_dict(), "Threat indicator added successfully", 201)
+    message = "Threat indicator added successfully"
+    if threat.severity in ALERT_SEVERITIES:
+        message += f"; threat alert sent to {send_threat_alerts(threat)} user(s)"
+    return success_response(threat.to_dict(), message, 201)
 
 
 @threat_routes.route("/threats", methods=["GET"])
@@ -150,7 +190,7 @@ def delete_threat(threat_id):
 def create_app(database_path=None):
     """Build the Flask app. Tests pass their own temporary database_path."""
     app = Flask(__name__)
-    app.config["DATABASE_PATH"] = database_path or config.DATABASE_PATH
+    app.config["DATABASE_PATH"] = database_path or config.DATABASE_PATHS["threats"]
     app.config["SERVICE_NAME"] = SERVICE_NAME
     app.json.sort_keys = False  # keep JSON fields in the order we wrote them
     app.register_blueprint(threat_routes, url_prefix=ROUTE_PREFIX)
@@ -159,6 +199,6 @@ def create_app(database_path=None):
 
 
 if __name__ == "__main__":
-    if not Path(config.DATABASE_PATH).exists():
+    if not Path(config.DATABASE_PATHS["threats"]).exists():
         raise SystemExit("Database not found. First run:  python -m database.init_db")
     create_app().run(host="127.0.0.1", port=config.SERVICE_PORTS["threats"])

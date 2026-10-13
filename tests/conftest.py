@@ -1,20 +1,65 @@
-"""Test helpers shared by all of Sleiman Koumaira's service tests."""
+"""
+Test helpers shared by all of Sleiman Koumaira's service tests.
+
+The automated tests must not depend on other services running, so Service 1 (login and users)
+and Service 8 (notifications) are replaced by small in-memory stand-ins here. These stand-ins
+exist only inside the tests; the running services always call the real ones.
+"""
 import pytest
 
-from database.init_db import init_database
-from shared import audit_client
-from shared.auth import ADMIN, ANALYST, AUDITOR, REGULAR_EMPLOYEE, create_access_token
+from shared import audit_client, auth, notification_client, users_client
+from shared.auth import ADMIN, ANALYST, AUDITOR, REGULAR_EMPLOYEE
+
+# Token -> user, as Service 1's verify endpoint would answer.
+TEST_TOKENS = {
+    "admin-token": {"user_id": 1, "username": "test_admin", "role": ADMIN},
+    "analyst-token": {"user_id": 2, "username": "test_analyst", "role": ANALYST},
+    "employee-token": {"user_id": 3, "username": "test_employee", "role": REGULAR_EMPLOYEE},
+    "auditor-token": {"user_id": 4, "username": "test_auditor", "role": AUDITOR},
+    "analyst2-token": {"user_id": 5, "username": "test_analyst_2", "role": ANALYST},
+}
+
+# What GET /theana-mansour/users returns in the tests.
+TEST_USERS = [
+    {"id": 1, "username": "test_admin", "role": ADMIN, "account_status": "Active"},
+    {"id": 2, "username": "test_analyst", "role": ANALYST, "account_status": "Active"},
+    {"id": 3, "username": "test_employee", "role": REGULAR_EMPLOYEE, "account_status": "Active"},
+    {"id": 4, "username": "test_auditor", "role": AUDITOR, "account_status": "Active"},
+    {"id": 5, "username": "test_analyst_2", "role": ANALYST, "account_status": "Active"},
+    {"id": 6, "username": "suspended_analyst", "role": ANALYST, "account_status": "Suspended"},
+]
 
 
-@pytest.fixture
-def database_path(tmp_path):
-    """A brand-new database file for every test, so tests never touch the real data."""
-    path = str(tmp_path / "test.db")
-    init_database(path)
-    return path
+@pytest.fixture(autouse=True)
+def fake_users_service(monkeypatch):
+    """Stand-in for Service 1's verify endpoint and user list."""
+
+    def fake_verify_token(authorization_header):
+        token = authorization_header.partition(" ")[2].strip()
+        if token == "expired-token":
+            return None, "Token expired"
+        if token in TEST_TOKENS:
+            return dict(TEST_TOKENS[token]), None
+        return None, "Invalid token"
+
+    monkeypatch.setattr(auth, "verify_token", fake_verify_token)
+    monkeypatch.setattr(users_client, "list_users", lambda authorization_header: [dict(u) for u in TEST_USERS])
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
+def sent_notifications(monkeypatch):
+    """Capture notifications that a service would send to Service 8."""
+    notifications = []
+
+    def fake_send_notification(**notification):
+        notifications.append(notification)
+        return True
+
+    monkeypatch.setattr(notification_client, "send_notification", fake_send_notification)
+    return notifications
+
+
+@pytest.fixture(autouse=True)
 def audit_events(monkeypatch):
     """Capture audit logs in a list instead of sending them to Service 5."""
     events = []
@@ -25,13 +70,10 @@ def audit_events(monkeypatch):
 @pytest.fixture
 def headers():
     """Authorization headers for one test user of each role."""
-
-    def bearer(user_id, username, role):
-        return {"Authorization": f"Bearer {create_access_token(user_id, username, role)}"}
-
     return {
-        "admin": bearer(1, "test_admin", ADMIN),
-        "analyst": bearer(2, "test_analyst", ANALYST),
-        "user": bearer(3, "test_employee", REGULAR_EMPLOYEE),
-        "auditor": bearer(4, "test_auditor", AUDITOR),
+        "admin": {"Authorization": "Bearer admin-token"},
+        "analyst": {"Authorization": "Bearer analyst-token"},
+        "user": {"Authorization": "Bearer employee-token"},
+        "auditor": {"Authorization": "Bearer auditor-token"},
+        "analyst2": {"Authorization": "Bearer analyst2-token"},
     }

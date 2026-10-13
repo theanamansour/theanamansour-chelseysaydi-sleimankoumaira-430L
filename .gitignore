@@ -24,3 +24,7 @@ docs/evidence/private/
 
 # Local Postman copy with dev tokens filled in (tokens expire, never commit them)
 postman/local/
+
+# Local secrets and the local copy of teammates' services used for integration testing
+.internal_service_key
+.worktrees/

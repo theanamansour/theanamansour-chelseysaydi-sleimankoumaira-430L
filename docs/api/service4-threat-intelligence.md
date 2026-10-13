@@ -3,8 +3,11 @@
 Base URL: `http://127.0.0.1:5004/sleiman-koumaira`
 Every route includes the full name of the student who implemented it (`/sleiman-koumaira`).
 
-**Authentication:** every endpoint needs the header `Authorization: Bearer <token>`. The token is
-issued at login (Service 1) and contains the user's ID and role.
+**Authentication:** every endpoint needs the header `Authorization: Bearer <token>`. The token
+comes from Service 1's login (`POST /theana-mansour/users/login`, Theana Mansour). For every
+request this service sends the token to Service 1's `POST /theana-mansour/auth/verify`, which
+checks the signature, the one-hour expiry and that the account is still Active, and returns the
+user's ID, username and current role. The role is then compared with the allowed roles below.
 
 **Allowed values**
 
@@ -34,11 +37,12 @@ indicator written differently is still detected as a duplicate.
 | Status | When |
 |---|---|
 | 400 | Validation failed (missing, empty, invalid, unknown or non-updatable fields; bad search criteria) |
-| 401 | Missing, invalid or expired token |
+| 401 | Missing token, or Service 1 rejected it (invalid, expired, or account not Active); the message comes from Service 1 |
 | 403 | Valid token, but the role is not allowed to call this endpoint |
 | 404 | No threat with this ID, or unknown URL |
 | 405 | HTTP method not supported on this URL |
 | 409 | A threat with the same type and value already exists |
+| 503 | Service 1 (authentication) is unavailable, so the caller cannot be identified |
 
 The example responses below were captured from the running service.
 
@@ -66,7 +70,8 @@ The example responses below were captured from the running service.
 }
 ```
 
-**Response - 201 Created**
+**Response - 201 Created** (for High and Critical threats the message also says how many threat
+alerts were sent, e.g. `"Threat indicator added successfully; threat alert sent to 3 user(s)"`)
 
 ```json
 {
@@ -339,10 +344,24 @@ HTTP 401
 
 ---
 
+## Automatic threat alerts (Service 8)
+
+When a **High** or **Critical** threat is added, the service:
+
+1. asks Service 1 for the user list (`GET /theana-mansour/users`, using the administrator's token),
+2. keeps every **Active** Security Administrator and Security Analyst,
+3. creates one `Threat Alert` notification for each of them in Service 8
+   (`POST /sleiman-koumaira/notifications` with the internal `X-Service-Key` header).
+
+The notification's severity is the threat's severity. If Service 1 or Service 8 is unavailable the
+threat is still saved and the message reports how many alerts were sent.
+
 ## Automatic audit logging
 
 Every data change and every rejected access attempt is sent to the Security Audit Logging
-Service (Service 5, `POST /logs`) with header `X-Service-Key`:
+Service (Service 5) with the internal `X-Service-Key` header (its value comes from an environment
+variable or a local file that Git ignores, never from the code). Until Service 5 is running the
+service prints `Audit service unreachable, log not saved` and continues:
 
 | Event | `action` | `severity` |
 |---|---|---|

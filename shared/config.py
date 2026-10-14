@@ -40,9 +40,11 @@ NOTIFICATIONS_URL = os.environ.get(
     "NOTIFICATIONS_URL", f"http://127.0.0.1:{SERVICE_PORTS['notifications']}/sleiman-koumaira/notifications"
 )
 
-# Service 5 - Security Audit Logging: the internal route for automatic log records.
-# The exact path is finalised when Service 5 is implemented; override it with AUDIT_LOG_URL.
-AUDIT_LOG_URL = os.environ.get("AUDIT_LOG_URL", f"http://127.0.0.1:{SERVICE_PORTS['audit_logs']}/logs")
+# Service 5 - Security Audit Logging (Chelsea Saydi): "Create Log Record", which accepts
+# automatic records from other services through the X-Service-Key header.
+AUDIT_LOG_URL = os.environ.get(
+    "AUDIT_LOG_URL", f"http://127.0.0.1:{SERVICE_PORTS['audit_logs']}/chelsea-saydi/logs"
+)
 
 # How long (seconds) to wait for another service before giving up.
 REQUEST_TIMEOUT = 3

@@ -3,14 +3,16 @@ import os
 import re
 import secrets
 import sqlite3
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from pathlib import Path
 
+import jwt
 from flask import Flask, request, jsonify
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from database import get_db, init_db
+from services.users.audit_client import send_audit_log
+from services.users.database import get_db, init_db
 
 app = Flask(__name__)
 PREFIX = "/theana-mansour"
@@ -36,7 +38,10 @@ def normalize_role(role):
 # Keep the signing key outside GitHub.
 key_file = Path(__file__).resolve().parent / ".secret_key"
 
-if os.environ.get("SECRET_KEY"):
+if os.environ.get("JWT_SECRET_KEY"):
+    secret_key = os.environ["JWT_SECRET_KEY"]
+elif os.environ.get("SECRET_KEY"):
+    # Backward-compatible local configuration name.
     secret_key = os.environ["SECRET_KEY"]
 elif key_file.exists():
     secret_key = key_file.read_text().strip()
@@ -44,7 +49,6 @@ else:
     secret_key = secrets.token_hex(32)
     key_file.write_text(secret_key)
 
-serializer = URLSafeTimedSerializer(secret_key)
 init_db()
 
 
@@ -142,13 +146,22 @@ def authenticate():
         return None, error("Authentication token required", 401)
 
     try:
-        user_id = serializer.loads(token, max_age=TOKEN_MAX_AGE)
-    except SignatureExpired:
+        claims = jwt.decode(
+            token,
+            secret_key,
+            algorithms=["HS256"],
+            options={"require": ["sub", "user_id", "iat", "exp"]}
+        )
+    except jwt.ExpiredSignatureError:
         return None, error("Token expired", 401)
-    except BadSignature:
+    except jwt.InvalidTokenError:
         return None, error("Invalid token", 401)
 
+    user_id = claims.get("user_id")
     if not isinstance(user_id, int) or isinstance(user_id, bool):
+        return None, error("Invalid token", 401)
+
+    if claims.get("sub") != str(user_id):
         return None, error("Invalid token", 401)
 
     user = UserService.by_id(user_id)
@@ -187,9 +200,21 @@ def protected(allowed_roles):
             user, problem = authenticate()
 
             if problem:
+                send_audit_log(
+                    None,
+                    "UNAUTHENTICATED_ACCESS",
+                    f"{request.method} {request.path} rejected: authentication failed",
+                    "Warning"
+                )
                 return problem
 
             if user["role"] not in allowed_roles:
+                send_audit_log(
+                    user["id"],
+                    "PERMISSION_DENIED",
+                    f"{user['role']} attempted {request.method} {request.path}",
+                    "Warning"
+                )
                 return error("Permission denied", 403)
 
             return function(user, *args, **kwargs)
@@ -233,7 +258,8 @@ def register():
 
     # Public registration always creates regular employees.
     # An administrator may register users with another role.
-    
+    actor_id = None
+
     if role not in ROLES:
         return error("Invalid role", 400)
 
@@ -241,10 +267,23 @@ def register():
         current_user, problem = authenticate()
 
         if problem:
+            send_audit_log(
+                None,
+                "UNAUTHENTICATED_ACCESS",
+                f"Attempted to register a user with privileged role {role}",
+                "Warning"
+            )
             return problem
 
         if current_user["role"] != ADMIN:
+            send_audit_log(
+                current_user["id"],
+                "PERMISSION_DENIED",
+                f"Attempted to register a user with privileged role {role}",
+                "Warning"
+            )
             return error("Only administrators can assign roles", 403)
+        actor_id = current_user["id"]
 
     conflict = UserService.registration_conflict(username, email)
 
@@ -274,6 +313,12 @@ def register():
 
     except sqlite3.IntegrityError:
         return error("Username or email already exists", 409)
+
+    send_audit_log(
+        actor_id or user_id,
+        "REGISTER_USER",
+        f"User account '{username}' was registered with role {role}"
+    )
 
     return jsonify({
         "message": "User registered successfully",
@@ -307,12 +352,32 @@ def login():
     if user is None or not check_password_hash(
         user["password_hash"], password
     ):
+        send_audit_log(
+            None,
+            "LOGIN_FAILED",
+            f"Failed login attempt for '{login_value.strip()}'",
+            "Warning"
+        )
         return error("Invalid credentials", 401)
 
     if user["account_status"] != "Active":
+        send_audit_log(
+            user["id"],
+            "LOGIN_BLOCKED",
+            f"Login blocked because account status is {user['account_status']}",
+            "Warning"
+        )
         return error("Account is not active", 403)
 
-    token = serializer.dumps(user["id"])
+    issued_at = datetime.now(timezone.utc)
+    token = jwt.encode({
+        "sub": str(user["id"]),
+        "user_id": user["id"],
+        "username": user["username"],
+        "role": user["role"],
+        "iat": issued_at,
+        "exp": issued_at + timedelta(seconds=TOKEN_MAX_AGE)
+    }, secret_key, algorithm="HS256")
 
     with get_db() as db:
         db.execute(
@@ -320,6 +385,12 @@ def login():
             "WHERE id = ?",
             (user["id"],)
         )
+
+    send_audit_log(
+        user["id"],
+        "LOGIN_SUCCESS",
+        f"User '{user['username']}' authenticated successfully"
+    )
 
     response = jsonify({
         "message": "Login successful",
@@ -336,6 +407,12 @@ def login():
 @protected([ADMIN, EMPLOYEE])
 def update_user(current_user, user_id):
     if current_user["role"] != ADMIN and current_user["id"] != user_id:
+        send_audit_log(
+            current_user["id"],
+            "PERMISSION_DENIED",
+            f"Attempted to update user {user_id}",
+            "Warning"
+        )
         return error("You may only update your own profile", 403)
 
     if UserService.by_id(user_id) is None:
@@ -375,6 +452,12 @@ def update_user(current_user, user_id):
     except sqlite3.IntegrityError:
         return error("Email already exists", 409)
 
+    send_audit_log(
+        current_user["id"],
+        "UPDATE_USER",
+        f"Updated user {user_id}: {', '.join(sorted(data))}"
+    )
+
     return jsonify({
         "message": "User updated successfully",
         "user": public_user(UserService.by_id(user_id))
@@ -387,13 +470,31 @@ def update_user(current_user, user_id):
 @protected([ADMIN])
 def delete_user(current_user, user_id):
     if current_user["id"] == user_id:
+        send_audit_log(
+            current_user["id"],
+            "PERMISSION_DENIED",
+            "Administrator attempted to delete their own account",
+            "Warning"
+        )
         return error("You cannot delete your own administrator account", 403)
 
     if UserService.by_id(user_id) is None:
         return error("User not found", 404)
 
-    with get_db() as db:
-        db.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    try:
+        with get_db() as db:
+            db.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    except sqlite3.IntegrityError:
+        return error(
+            "User cannot be deleted while related system records exist", 409
+        )
+
+    send_audit_log(
+        current_user["id"],
+        "DELETE_USER",
+        f"Deleted user {user_id}",
+        "Warning"
+    )
 
     return jsonify({"message": "User deleted successfully"})
 
@@ -416,6 +517,12 @@ def get_users(current_user):
 def get_user(current_user, username):
     if current_user["role"] == EMPLOYEE:
         if current_user["username"].casefold() != username.casefold():
+            send_audit_log(
+                current_user["id"],
+                "PERMISSION_DENIED",
+                f"Attempted to view user '{username}'",
+                "Warning"
+            )
             return error("You may only view your own profile", 403)
 
     user = UserService.by_username(username)
@@ -447,6 +554,12 @@ def update_role(current_user, user_id):
         return error("Invalid role", 400)
 
     if current_user["id"] == user_id:
+        send_audit_log(
+            current_user["id"],
+            "PERMISSION_DENIED",
+            "Administrator attempted to change their own role",
+            "Warning"
+        )
         return error("Cannot change your own role", 403)
 
     with get_db() as db:
@@ -454,6 +567,13 @@ def update_role(current_user, user_id):
             "UPDATE users SET role = ? WHERE id = ?",
             (role, user_id)
         )
+
+    send_audit_log(
+        current_user["id"],
+        "UPDATE_USER_ROLE",
+        f"Changed user {user_id} role from {user['role']} to {role}",
+        "Warning"
+    )
 
     return jsonify({"message": "User role updated successfully"})
 
@@ -478,6 +598,12 @@ def update_status(current_user, user_id):
         return error("Invalid account status", 400)
 
     if current_user["id"] == user_id:
+        send_audit_log(
+            current_user["id"],
+            "PERMISSION_DENIED",
+            "Administrator attempted to change their own account status",
+            "Warning"
+        )
         return error("Cannot change your own account status", 403)
 
     with get_db() as db:
@@ -485,6 +611,14 @@ def update_status(current_user, user_id):
             "UPDATE users SET account_status = ? WHERE id = ?",
             (status, user_id)
         )
+
+    send_audit_log(
+        current_user["id"],
+        "UPDATE_ACCOUNT_STATUS",
+        f"Changed user {user_id} account status from "
+        f"{user['account_status']} to {status}",
+        "Warning" if status != "Active" else "Information"
+    )
 
     return jsonify({"message": "Account status updated successfully"})
 
@@ -499,6 +633,12 @@ def method_not_allowed(_exception):
     return error("Method not allowed", 405)
 
 
+@app.errorhandler(500)
+def internal_error(_exception):
+    return error("Internal server error", 500)
+
+
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    port = int(os.environ.get("USER_SERVICE_PORT", "5001"))
+    app.run(host="127.0.0.1", debug=True, port=port)

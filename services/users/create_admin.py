@@ -5,7 +5,7 @@ from getpass import getpass
 
 from werkzeug.security import generate_password_hash
 
-from database import get_db, init_db
+from services.users.database import get_db, init_db
 
 init_db()
 

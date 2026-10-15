@@ -6,3 +6,6 @@ venv/
 *.db
 .env
 .DS_Store
+*.sqlite3
+.secret_key
+.internal_service_key

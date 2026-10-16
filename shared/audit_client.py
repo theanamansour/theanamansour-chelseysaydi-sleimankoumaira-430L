@@ -31,7 +31,7 @@ def send_audit_log(user_id, action, description, severity, related_service):
         response = requests.post(
             config.AUDIT_LOG_URL,
             json=log_record,
-            headers={"X-Service-Key": config.INTERNAL_SERVICE_KEY},
+            headers={"X-Service-Key": config.internal_service_key()},
             timeout=2,
         )
         if response.status_code >= 400:

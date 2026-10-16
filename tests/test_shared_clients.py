@@ -77,7 +77,7 @@ def test_verify_token_raises_when_service1_unavailable(monkeypatch, fake_post):
     [(None, False), ("", False), ("wrong-key", False), ("CORRECT", True)],
 )
 def test_service_key_check(monkeypatch, sent_key, expected):
-    monkeypatch.setattr(config, "INTERNAL_SERVICE_KEY", "CORRECT")
+    monkeypatch.setenv("INTERNAL_SERVICE_KEY", "CORRECT")
     headers = {} if sent_key is None else {"X-Service-Key": sent_key}
     with Flask(__name__).test_request_context(headers=headers):
         assert auth.has_valid_service_key() is expected
@@ -127,7 +127,7 @@ def test_send_notification_uses_the_internal_service_key(monkeypatch):
     url, body, sent_headers = calls[0]
     assert url == config.NOTIFICATIONS_URL
     assert body == {"user_id": 2, "title": "T", "message": "M", "notification_type": "Threat Alert", "severity": "High"}
-    assert sent_headers == {"X-Service-Key": config.INTERNAL_SERVICE_KEY}
+    assert sent_headers == {"X-Service-Key": config.internal_service_key()}
 
 
 @pytest.mark.parametrize(
@@ -154,7 +154,7 @@ def test_audit_log_is_sent_with_service_key(monkeypatch):
     assert url == config.AUDIT_LOG_URL
     assert body == {"user_id": 1, "action": "CREATE_THREAT", "description": "d",
                     "severity": "Information", "related_service": "S"}
-    assert sent_headers == {"X-Service-Key": config.INTERNAL_SERVICE_KEY}
+    assert sent_headers == {"X-Service-Key": config.internal_service_key()}
 
 
 def test_audit_log_failure_does_not_crash(monkeypatch):

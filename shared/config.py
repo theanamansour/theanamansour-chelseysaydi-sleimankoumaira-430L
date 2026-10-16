@@ -9,6 +9,7 @@ import secrets
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 # All services use the team's one shared SQLite database, set up in the database/ folder
 # (database/data/security_system.db, or the SYSTEM_DATABASE_PATH environment variable).
 
@@ -45,11 +46,13 @@ AUDIT_LOG_URL = os.environ.get(
 REQUEST_TIMEOUT = 3
 
 
-def _load_internal_service_key():
+def internal_service_key():
     """
     The secret that services send to each other in the X-Service-Key header.
-    Taken from the INTERNAL_SERVICE_KEY environment variable, or else from the local file
-    .internal_service_key (ignored by Git), which is created on first use.
+    Taken from the INTERNAL_SERVICE_KEY environment variable (the team's setting, see
+    .env.example), or else from the local file .internal_service_key (ignored by Git),
+    which is created on first use. It is read only when a request needs it, so importing
+    this module never writes a file.
     """
     if os.environ.get("INTERNAL_SERVICE_KEY"):
         return os.environ["INTERNAL_SERVICE_KEY"]
@@ -57,6 +60,3 @@ def _load_internal_service_key():
     if not key_file.exists():
         key_file.write_text(secrets.token_hex(32))
     return key_file.read_text().strip()
-
-
-INTERNAL_SERVICE_KEY = _load_internal_service_key()

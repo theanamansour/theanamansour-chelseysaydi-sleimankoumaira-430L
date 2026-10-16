@@ -5,6 +5,8 @@ The automated tests must not depend on other services running, so Service 1 (log
 and Service 8 (notifications) are replaced by small in-memory stand-ins here. These stand-ins
 exist only inside the tests; the running services always call the real ones.
 """
+import os
+
 import pytest
 
 from shared import audit_client, auth, notification_client, users_client
@@ -28,6 +30,13 @@ TEST_USERS = [
     {"id": 5, "username": "test_analyst_2", "role": ANALYST, "account_status": "Active"},
     {"id": 6, "username": "suspended_analyst", "role": ANALYST, "account_status": "Suspended"},
 ]
+
+
+@pytest.fixture(autouse=True)
+def test_internal_service_key(monkeypatch):
+    """Use a made-up internal key, so the tests never create the real .internal_service_key file."""
+    if not os.environ.get("INTERNAL_SERVICE_KEY"):
+        monkeypatch.setenv("INTERNAL_SERVICE_KEY", "test-internal-service-key")
 
 
 @pytest.fixture(autouse=True)

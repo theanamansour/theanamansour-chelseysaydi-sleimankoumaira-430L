@@ -1,41 +1,51 @@
-"""
-Creates the SQLite database of each of Sleiman Koumaira's services.
-
-Every service has its own database file (the team's design), built from its schema file
-in database/schema/. Run from the project root:
-    python -m database.init_db
-
-Each schema uses CREATE TABLE IF NOT EXISTS, so running this again never deletes data.
-"""
-import sqlite3
+"""Create every table in the team's shared SQLite database."""
 from pathlib import Path
 
-from shared import config
+from database.config import get_database_path
+from database.connection import get_db
+
 
 SCHEMA_FOLDER = Path(__file__).resolve().parent / "schema"
+SCHEMA_FILES = (
+    "01_users.sql",
+    "02_assets.sql",
+    "03_incidents.sql",
+    "04_threats.sql",
+    "05_audit_logs.sql",
+    "07_vulnerabilities.sql",
+    "08_notifications.sql",
+    "09_playbooks.sql",
+)
 
-# Which schema file builds which service's database.
 SERVICE_SCHEMAS = {
-    "assets": "02_assets.sql",
-    "threats": "04_threats.sql",
+    "users": ("01_users.sql",),
+    "assets": ("01_users.sql", "02_assets.sql"),
+    "incidents": ("01_users.sql", "02_assets.sql", "03_incidents.sql"),
+    "threats": ("04_threats.sql",),
+    "audit_logs": ("01_users.sql", "05_audit_logs.sql"),
+    "vulnerabilities": (
+        "01_users.sql",
+        "02_assets.sql",
+        "07_vulnerabilities.sql",
+    ),
+    "notifications": ("01_users.sql", "08_notifications.sql"),
+    "playbooks": ("01_users.sql", "09_playbooks.sql"),
 }
 
 
-def init_database(service, database_path=None):
-    """Create (or update) the database of one service. Tests pass their own database_path."""
-    database_path = database_path or config.DATABASE_PATHS[service]
-    Path(database_path).parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(database_path)
-    try:
-        connection.execute("PRAGMA foreign_keys = ON")
-        connection.executescript((SCHEMA_FOLDER / SERVICE_SCHEMAS[service]).read_text())
-        connection.commit()
-    finally:
-        connection.close()
-    return database_path
+def init_database(service=None, database_path=None):
+    """Create all tables, or one service and its dependency tables."""
+    if service is not None and service not in SERVICE_SCHEMAS:
+        raise ValueError(f"Unknown service: {service}")
+
+    path = database_path or get_database_path()
+    filenames = SERVICE_SCHEMAS[service] if service else SCHEMA_FILES
+    with get_db(path) as connection:
+        for filename in filenames:
+            connection.executescript((SCHEMA_FOLDER / filename).read_text())
+    return path
 
 
 if __name__ == "__main__":
-    for service_name in SERVICE_SCHEMAS:
-        path = init_database(service_name)
-        print(f"{service_name}: {path}")
+    created_path = init_database()
+    print(f"Shared database initialized: {created_path}")

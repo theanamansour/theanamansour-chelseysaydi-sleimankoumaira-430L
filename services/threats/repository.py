@@ -5,10 +5,8 @@ All SQL for the threats table lives here. Every query uses "?" placeholders: the
 values are sent to SQLite separately from the SQL text, so user input can never
 change the meaning of a query (this is what prevents SQL injection).
 """
-from contextlib import closing
-
+from database.connection import get_db  # the team's shared database (foreign keys on)
 from services.threats.models import UPDATABLE_FIELDS, Threat
-from shared.database import get_connection
 
 # Search rules: these fields must match exactly...
 EXACT_MATCH_FIELDS = ("threat_type", "severity")
@@ -27,7 +25,7 @@ class ThreatRepository:
 
     def create(self, threat_data):
         """INSERT a new threat and return it as a Threat object (with its new ID and date)."""
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             cursor = connection.execute(
                 """
                 INSERT INTO threats (threat_type, threat_value, description, severity, source)
@@ -41,12 +39,11 @@ class ThreatRepository:
                     threat_data["source"],
                 ),
             )
-            connection.commit()
             new_id = cursor.lastrowid
         return self.get_by_id(new_id)
 
     def get_all(self):
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             rows = connection.execute("SELECT * FROM threats ORDER BY threat_id").fetchall()
         return [Threat.from_row(row) for row in rows]
 
@@ -54,7 +51,7 @@ class ThreatRepository:
         """Return the Threat, or None if no row has this ID."""
         if threat_id > MAX_SQLITE_INTEGER:
             return None  # too big to ever be an ID (SQLite would raise an error)
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             row = connection.execute(
                 "SELECT * FROM threats WHERE threat_id = ?", (threat_id,)
             ).fetchone()
@@ -62,7 +59,7 @@ class ThreatRepository:
 
     def find_by_type_and_value(self, threat_type, threat_value):
         """Used to detect duplicates before inserting."""
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             row = connection.execute(
                 "SELECT * FROM threats WHERE threat_type = ? AND threat_value = ?",
                 (threat_type, threat_value),
@@ -87,7 +84,7 @@ class ThreatRepository:
                 parameters.append(f"%{_escape_like(criteria[field])}%")
 
         sql = f"SELECT * FROM threats WHERE {' AND '.join(conditions)} ORDER BY threat_id"
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             rows = connection.execute(sql, parameters).fetchall()
         return [Threat.from_row(row) for row in rows]
 
@@ -97,20 +94,18 @@ class ThreatRepository:
         set_clause = ", ".join(f"{field} = ?" for field in fields)
         parameters = [changes[field] for field in fields] + [threat_id]
 
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             cursor = connection.execute(
                 f"UPDATE threats SET {set_clause} WHERE threat_id = ?", parameters
             )
-            connection.commit()
             if cursor.rowcount == 0:
                 return None
         return self.get_by_id(threat_id)
 
     def delete(self, threat_id):
         """DELETE the row. Returns True if a row was deleted, False if the ID did not exist."""
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             cursor = connection.execute("DELETE FROM threats WHERE threat_id = ?", (threat_id,))
-            connection.commit()
             return cursor.rowcount > 0
 
 

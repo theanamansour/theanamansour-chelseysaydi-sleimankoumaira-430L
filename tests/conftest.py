@@ -5,8 +5,11 @@ The automated tests must not depend on other services running, so Service 1 (log
 and Service 8 (notifications) are replaced by small in-memory stand-ins here. These stand-ins
 exist only inside the tests; the running services always call the real ones.
 """
+import os
+
 import pytest
 
+from database.connection import get_db
 from shared import audit_client, auth, notification_client, users_client
 from shared.auth import ADMIN, ANALYST, AUDITOR, REGULAR_EMPLOYEE
 
@@ -28,6 +31,30 @@ TEST_USERS = [
     {"id": 5, "username": "test_analyst_2", "role": ANALYST, "account_status": "Active"},
     {"id": 6, "username": "suspended_analyst", "role": ANALYST, "account_status": "Suspended"},
 ]
+
+
+def add_test_users(database_path):
+    """
+    The shared database checks owner_id and user_id with real foreign keys, so a test database
+    needs the same users as the fake Service 1 above.
+    """
+    with get_db(database_path) as connection:
+        connection.executemany(
+            "INSERT INTO users (id, full_name, username, email, password_hash, department, role, account_status)"
+            " VALUES (?, ?, ?, ?, 'not-used-in-tests', 'Security', ?, ?)",
+            [
+                (user["id"], user["username"], user["username"], f"{user['username']}@example.com",
+                 user["role"], user["account_status"])
+                for user in TEST_USERS
+            ],
+        )
+
+
+@pytest.fixture(autouse=True)
+def test_internal_service_key(monkeypatch):
+    """Use a made-up internal key, so the tests never create the real .internal_service_key file."""
+    if not os.environ.get("INTERNAL_SERVICE_KEY"):
+        monkeypatch.setenv("INTERNAL_SERVICE_KEY", "test-internal-service-key")
 
 
 @pytest.fixture(autouse=True)

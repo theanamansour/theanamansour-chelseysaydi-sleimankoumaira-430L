@@ -57,7 +57,7 @@ def has_valid_service_key():
     """True if the request carries the correct X-Service-Key header (service-to-service call)."""
     sent_key = request.headers.get("X-Service-Key", "")
     # compare_digest takes the same time whether the keys match or not (no timing hints).
-    return bool(sent_key) and hmac.compare_digest(sent_key, config.INTERNAL_SERVICE_KEY)
+    return bool(sent_key) and hmac.compare_digest(sent_key, config.internal_service_key())
 
 
 def require_roles(*allowed_roles, allow_service_key=False):

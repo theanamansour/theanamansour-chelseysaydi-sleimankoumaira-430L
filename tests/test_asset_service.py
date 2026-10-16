@@ -6,6 +6,7 @@ import pytest
 from database.init_db import init_database
 from services.assets.app import ROUTE_PREFIX, create_app
 from shared import auth, users_client
+from tests.conftest import add_test_users
 
 URL = f"{ROUTE_PREFIX}/assets"
 
@@ -74,8 +75,10 @@ ALL_ASSETS = [WEB_SERVER, HR_LAPTOP, CUSTOMER_DB, PAYROLL_APP, CORE_ROUTER, CLOU
 
 @pytest.fixture
 def database_path(tmp_path):
-    """A brand-new assets database for every test, so tests never touch the real data."""
-    return init_database("assets", str(tmp_path / "assets.db"))
+    """A brand-new copy of the shared database for every test, so tests never touch the real data."""
+    path = init_database("assets", str(tmp_path / "security_system.db"))
+    add_test_users(path)
+    return path
 
 
 @pytest.fixture

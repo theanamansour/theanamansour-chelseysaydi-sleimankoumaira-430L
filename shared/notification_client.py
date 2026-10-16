@@ -24,7 +24,7 @@ def send_notification(user_id, title, message, notification_type, severity):
         response = requests.post(
             config.NOTIFICATIONS_URL,
             json=notification,
-            headers={"X-Service-Key": config.INTERNAL_SERVICE_KEY},
+            headers={"X-Service-Key": config.internal_service_key()},
             timeout=config.REQUEST_TIMEOUT,
         )
     except requests.RequestException:

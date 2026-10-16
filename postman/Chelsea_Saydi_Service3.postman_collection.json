@@ -1,0 +1,146 @@
+{
+  "info": {
+    "_postman_id": "5f069646-139a-4bab-b924-6b3a7a78294a",
+    "name": "Chelsea Saydi - Service 3 Incident Management",
+    "description": "Sprint I API evidence collection for the Incident Management Service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5003/chelsea-saydi"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "incidentId",
+      "value": "1"
+    },
+    {
+      "key": "analystId",
+      "value": "2"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 - Create Incident",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Phishing email opened\",\n  \"description\": \"An employee opened a suspicious attachment.\",\n  \"category\": \"Phishing\",\n  \"severity\": \"High\",\n  \"reporter_id\": 3,\n  \"asset_id\": 1\n}"
+        },
+        "url": "{{baseUrl}}/incidents",
+        "description": "Creates an Open incident. Allowed for administrators and regular employees."
+      }
+    },
+    {
+      "name": "2 - Retrieve All Incidents",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/incidents",
+        "description": "Returns all incidents. Allowed for administrators and auditors."
+      }
+    },
+    {
+      "name": "3 - Retrieve Specific Incident",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/incidents/{{incidentId}}",
+        "description": "Returns one incident and its investigation notes."
+      }
+    },
+    {
+      "name": "4 - Assign Incident to Analyst",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"analyst_id\": {{analystId}}\n}"
+        },
+        "url": "{{baseUrl}}/incidents/{{incidentId}}/assign",
+        "description": "Administrator-only assignment. The user must have the Security Analyst role."
+      }
+    },
+    {
+      "name": "5 - Update Incident Status",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Under Investigation\"\n}"
+        },
+        "url": "{{baseUrl}}/incidents/{{incidentId}}/status",
+        "description": "Moves an incident forward by exactly one lifecycle step."
+      }
+    },
+    {
+      "name": "6 - Add Investigation Note",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"note_content\": \"Email headers reviewed and attachment hash collected.\"\n}"
+        },
+        "url": "{{baseUrl}}/incidents/{{incidentId}}/notes",
+        "description": "Adds an investigation note linked to the incident and authenticated author."
+      }
+    },
+    {
+      "name": "Validation - Reject Open to Closed",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Closed\"\n}"
+        },
+        "url": "{{baseUrl}}/incidents/{{incidentId}}/status",
+        "description": "Demonstrates rejection of a skipped lifecycle transition."
+      }
+    }
+  ]
+}

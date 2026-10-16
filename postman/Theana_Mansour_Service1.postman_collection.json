@@ -1,0 +1,4445 @@
+{
+  "info": {
+    "_postman_id": "60f8437f-ca07-4f08-a518-51b9e12b5380",
+    "name": "Theana Mansour - Service 1 Users and Identity Management",
+    "description": "Service 1 (Theana Mansour). Documented requests with saved examples, plus a runnable test folder. Set admin_login / admin_password in Variables. base_url = Service 1 (port 5001).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58827829",
+    "_collection_link": "https://go.postman.co/collection/58827829-60f8437f-ca07-4f08-a518-51b9e12b5380?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "GET User by Username",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/nonexistentuser",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "nonexistentuser"
+          ]
+        },
+        "description": "**Purpose:** Retrieves the account information of a specific registered user using their username.\n\n**Method:** GET  \n**Endpoint:** /theana-mansour/users/{username}\n\n**Required parameter:**\n\n- username: The exact username of the user to retrieve.\n    \n\n**Request body:** None.\n\n**Authorization:**\n\n- Security Administrator: Can retrieve any user's information.\n    \n- Auditor: Can retrieve any user's information (read-only).\n    \n- Regular Employee: Can retrieve only their own information.\n    \n- Security Analyst: No access.\n    \n\n**Success response:**\n\n- 200 OK: Returns the requested user's account information.\n    \n\n**Returned information:**\n\n- id\n    \n- full_name\n    \n- username\n    \n- email\n    \n- department\n    \n- role\n    \n- account_status\n    \n- created_at\n    \n- last_login_at\n    \n\n**Error responses:**\n\n- 401 Unauthorized: Missing, invalid, or expired authentication token.\n    \n- 403 Forbidden: User does not have permission to view the requested profile.\n    \n- 404 Not Found: The specified username does not exist.\n    \n\n**Validation and security:**\n\n- The username must match an existing account.\n    \n- Regular Employees can retrieve only the profile associated with their own username.\n    \n- Security Administrators and Auditors can retrieve other users' profiles.\n    \n- Passwords and password hashes are excluded from the response."
+      },
+      "response": [
+        {
+          "name": "GET User by Username - Successful (admin)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/admin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "admin"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:17:27 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "245"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"account_status\": \"Active\",\n  \"created_at\": \"2026-10-13 17:09:45\",\n  \"department\": \"IT\",\n  \"email\": \"admin@gmail.com\",\n  \"full_name\": \"Testing Admin\",\n  \"id\": 2,\n  \"last_login_at\": null,\n  \"role\": \"Regular Employee\",\n  \"username\": \"admin\"\n}"
+        },
+        {
+          "name": "GET User by Username - Failed (nonexistent user)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/nonexistentuser",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "nonexistentuser"
+              ]
+            }
+          },
+          "status": "NOT FOUND",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:23:42 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "55"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"User not found\",\n  \"status\": \"error\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "GET All Users - Administrator",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users"
+          ]
+        },
+        "description": "**Purpose:** Retrieves the information of all registered users in the system.\n\n**Method:** GET  \n**Endpoint:** /theana-mansour/users\n\n**Required parameters:** None.\n\n**Request body:** None.\n\n**Authorization:**\n\n- Security Administrator: Allowed.\n    \n- Auditor: Allowed (read-only).\n    \n- Security Analyst: No access.\n    \n- Regular Employee: No access.\n    \n\n**Success response:**\n\n- 200 OK: Returns a JSON array containing all registered users.\n    \n\n**Returned information:**\n\n- id\n    \n- full_name\n    \n- username\n    \n- email\n    \n- department\n    \n- role\n    \n- account_status\n    \n- created_at\n    \n- last_login_at\n    \n\n**Error responses:**\n\n- 401 Unauthorized: Missing, invalid, or expired authentication token.\n    \n- 403 Forbidden: User does not have permission to retrieve all accounts.\n    \n\n**Validation and security:**\n\n- A valid authentication token is required.\n    \n- Only Security Administrators and Auditors can retrieve the complete list.\n    \n- Passwords and password hashes are never included in the response.\n    \n- If no users exist, the API returns an empty JSON array."
+      },
+      "response": [
+        {
+          "name": "GET All Users - Administrator (Successful)",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:14:09 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "574"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "[\n  {\n    \"account_status\": \"Active\",\n    \"created_at\": \"2026-10-13 16:51:39\",\n    \"department\": \"CCE\",\n    \"email\": \"trm09@mail.aub.edu\",\n    \"full_name\": \"theanamansour\",\n    \"id\": 1,\n    \"last_login_at\": \"2026-10-13 16:59:21\",\n    \"role\": \"Security Administrator\",\n    \"username\": \"theanamansour\"\n  },\n  {\n    \"account_status\": \"Active\",\n    \"created_at\": \"2026-10-13 17:09:45\",\n    \"department\": \"IT\",\n    \"email\": \"admin@gmail.com\",\n    \"full_name\": \"Testing Admin\",\n    \"id\": 2,\n    \"last_login_at\": null,\n    \"role\": \"Regular Employee\",\n    \"username\": \"admin\"\n  }\n]"
+        }
+      ]
+    },
+    {
+      "name": "POST Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"full_name\": \"John Smith\",\r\n  \"username\": \"john\",\r\n  \"email\": \"john2025@gmail.com\",\r\n  \"password\": \"Johnny123\",\r\n  \"department\": \"Cybersecurity\",\r\n  \"role\": \"Regular Employee\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "register"
+          ]
+        },
+        "description": "**Purpose:** Registers a new user in the system.\n\n**Method:** POST  \n**Endpoint:** /theana-mansour/users/register\n\n**Required fields:**\n\n- full_name\n    \n- username\n    \n- email\n    \n- password\n    \n- department\n    \n- role\n    \n\n**Accepted role values:**\n\n- Security Administrator\n    \n- Security Analyst\n    \n- Regular Employee\n    \n- Auditor\n    \n\nRole values are case-sensitive and must match exactly. \"Regular User\" is also accepted and is saved as Regular Employee.\n\n**Authorization:**\n\n- Regular users can register themselves with the Regular Employee role.\n    \n- Only an authenticated Security Administrator can register users with the Security Administrator, Security Analyst, or Auditor roles.\n    \n- Unauthorized role assignments are rejected.\n    \n\n**Success response:**\n\n- 201 Created: User registered successfully. Returns the user ID and assigned role.\n    \n\n**Error responses:**\n\n- 400 Bad Request: Missing required fields, invalid email, weak password, invalid role, or a field that is too short or too long (username 3-50 characters).\n    \n- 401 Unauthorized: Missing or invalid authentication token when assigning an elevated role.\n    \n- 403 Forbidden: User does not have permission to assign the requested role.\n    \n- 409 Conflict: Username or email already exists.\n    \n\n**Validation and security:**\n\n- All required fields must be provided.\n    \n- Email must have a valid format.\n    \n- Username and email must be unique.\n    \n- Password must contain at least 8 characters, including a letter and a number.\n    \n- Passwords are hashed before being stored in the database.\n    \n- New accounts have an initial status of Active."
+      },
+      "response": [
+        {
+          "name": "POST Register - Successful (Regular Employee)",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"full_name\": \"Testing Admin\",\r\n  \"username\": \"admin\",\r\n  \"email\": \"admin@gmail.com\",\r\n  \"password\": \"Password123\",\r\n  \"department\": \"IT\",\r\n  \"role\": \"Regular Employee\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            }
+          },
+          "status": "CREATED",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:09:45 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "94"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"User registered successfully\",\n  \"role\": \"Regular Employee\",\n  \"user_id\": 2\n}"
+        },
+        {
+          "name": "POST Register - Unsuccessful (Existing Username)",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"full_name\": \"Trying SameUsername\",\r\n  \"username\": \"admin\",\r\n  \"email\": \"admin2@gmail.com\",\r\n  \"password\": \"Password123\",\r\n  \"department\": \"IT\",\r\n  \"role\": \"Regular Employee\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            }
+          },
+          "status": "CONFLICT",
+          "code": 409,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:10:52 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "73"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Username or email already exists\",\n  \"status\": \"error\"\n}"
+        },
+        {
+          "name": "POST Register - Successful (Regular Employee - Id:3)",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"full_name\": \"John Smith\",\r\n  \"username\": \"john\",\r\n  \"email\": \"john2025@gmail.com\",\r\n  \"password\": \"Johnny123\",\r\n  \"department\": \"Cybersecurity\",\r\n  \"role\": \"Regular Employee\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            }
+          },
+          "status": "CREATED",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:36:12 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "94"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"User registered successfully\",\n  \"role\": \"Regular Employee\",\n  \"user_id\": 3\n}"
+        }
+      ]
+    },
+    {
+      "name": "POST Login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"login\": \"theanamansour\",\r\n  \"password\": \"wrong_password\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "login"
+          ]
+        },
+        "description": "**Purpose:** Authenticates a registered user and generates a token to access protected APIs.\n\n**Method:** POST  \n**Endpoint:** /theana-mansour/users/login\n\n**Required fields:**\n\n- login: Username or email\n    \n- password: User's password\n    \n\n**Authorization:**\n\n- No authentication token is required to log in.\n    \n- Only users with an Active account status can log in.\n    \n- Inactive and Suspended accounts cannot authenticate.\n    \n\n**Accepted account statuses:**\n\n- Active: Login allowed\n    \n- Inactive: Login denied\n    \n- Suspended: Login denied\n    \n\n**Success response:**\n\n- 200 OK: Login successful. Returns the authentication token, user ID, and role.\n    \n\n**Error responses:**\n\n- 400 Bad Request: Missing or invalid request fields.\n    \n- 401 Unauthorized: Incorrect username, email, or password.\n    \n- 403 Forbidden: Account is Inactive or Suspended.\n    \n\n**Validation and security:**\n\n- The username/email and password are checked against the database.\n    \n- Passwords are verified using their stored hashes.\n    \n- A signed authentication token is generated after successful login.\n    \n- Tokens expire after one hour.\n    \n- The user's last login timestamp is updated after successful authentication.\n    \n- The token must be included in the Authorization header of protected API requests."
+      },
+      "response": [
+        {
+          "name": "POST Login - Successful - Security Administrator",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"login\": \"theanamansour\",\r\n  \"password\": \"theana123\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 16:59:21 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "140"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Login successful\",\n  \"role\": \"Security Administrator\",\n  \"token\": \"MQ.as5jaQ.eMKlW6dNbYI_5DohCFOkpfrkcB8\",\n  \"user_id\": 1\n}"
+        },
+        {
+          "name": "POST Login - Unsuccessful (Wrong Password)",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"login\": \"theanamansour\",\r\n  \"password\": \"wrong_password\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            }
+          },
+          "status": "UNAUTHORIZED",
+          "code": 401,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:05:38 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "60"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Invalid credentials\",\n  \"status\": \"error\"\n}"
+        },
+        {
+          "name": "POST Login - User2",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"login\": \"admin\",\r\n  \"password\": \"Password123\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:38:01 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "134"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Login successful\",\n  \"role\": \"Regular Employee\",\n  \"token\": \"Mg.as5seQ.1HGhNjnrXTfralv2CR1KQYkV2cY\",\n  \"user_id\": 2\n}"
+        }
+      ]
+    },
+    {
+      "name": "PUT Update User",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employee_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"full_name\": \"Admin NEWLASTNAME\",\r\n  \"department\": \"IT\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/3",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "3"
+          ]
+        },
+        "description": "**Purpose:** Updates the profile information of an existing user.\n\n**Method:** PUT  \n**Endpoint:** /theana-mansour/users/{id}\n\n**Required parameter:**\n\n- id: ID of the user to update.\n    \n\n**Request body (at least one of):**\n\n- full_name\n    \n- email\n    \n- department\n    \n\n**Authorization:**\n\n- Security Administrator: Can update any user.\n    \n- Regular Employee: Can update only their own profile.\n    \n- Security Analyst: No access.\n    \n- Auditor: No access.\n    \n\n**Success response:**\n\n- 200 OK: Returns the updated user (without the password hash).\n\n**Error responses:**\n\n- 400 Bad Request: Empty body, unknown field (for example role or password), empty value, invalid email, or a value that is too long.\n    \n- 401 Unauthorized: Missing, invalid, or expired authentication token.\n    \n- 403 Forbidden: Updating another user's profile without administrator rights.\n    \n- 404 Not Found: User ID does not exist.\n    \n- 409 Conflict: Email already used by another account.\n\n**Validation and security:**\n\n- Only full_name, email and department can be changed here; roles and account status have their own administrator endpoints.\n    \n- Emails are validated and stored in lowercase.\n    \n- The change is recorded in the Security Audit Logging Service."
+      },
+      "response": [
+        {
+          "name": "PUT Update User - FAILED (empty fields)",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"full_name\": \"\",\r\n  \"email\": \"adminupdated@gmail.com\",\r\n  \"department\": \"Cybersecurity\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "2"
+              ]
+            }
+          },
+          "status": "BAD REQUEST",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:29:47 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "70"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Update values cannot be empty\",\n  \"status\": \"error\"\n}"
+        },
+        {
+          "name": "PUT Update User - Failed (invalid fields)",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"full_name\": \"New Testing Admin\",\r\n  \"email\": \"adminupdated@gmail.com\",\r\n  \"password\": \"newpassword123\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "2"
+              ]
+            }
+          },
+          "status": "BAD REQUEST",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:30:54 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "62"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Invalid update fields\",\n  \"status\": \"error\"\n}"
+        },
+        {
+          "name": "PUT Update User - Successful",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"full_name\": \"New Testing Admin\",\r\n  \"email\": \"adminupdated@gmail.com\",\r\n  \"department\": \"Cybersecurity\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "2"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:31:39 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "343"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"User updated successfully\",\n  \"user\": {\n    \"account_status\": \"Active\",\n    \"created_at\": \"2026-10-13 17:09:45\",\n    \"department\": \"Cybersecurity\",\n    \"email\": \"adminupdated@gmail.com\",\n    \"full_name\": \"New Testing Admin\",\n    \"id\": 2,\n    \"last_login_at\": null,\n    \"role\": \"Regular Employee\",\n    \"username\": \"admin\"\n  }\n}"
+        },
+        {
+          "name": "PUT Update User - Successful (USER2 updating himself)",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"full_name\": \"Admin NEWLASTNAME\",\r\n  \"department\": \"IT\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "2"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:51:02 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "349"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"User updated successfully\",\n  \"user\": {\n    \"account_status\": \"Active\",\n    \"created_at\": \"2026-10-13 17:09:45\",\n    \"department\": \"IT\",\n    \"email\": \"adminupdated@gmail.com\",\n    \"full_name\": \"Admin NEWLASTNAME\",\n    \"id\": 2,\n    \"last_login_at\": \"2026-10-13 17:38:01\",\n    \"role\": \"Regular Employee\",\n    \"username\": \"admin\"\n  }\n}"
+        },
+        {
+          "name": "PUT Update User - FAILED (user2 cannot update other users)",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"full_name\": \"Admin NEWLASTNAME\",\r\n  \"department\": \"IT\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "3"
+              ]
+            }
+          },
+          "status": "FORBIDDEN",
+          "code": 403,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:51:39 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "77"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"You may only update your own profile\",\n  \"status\": \"error\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "DELETE User",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/3",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "3"
+          ]
+        },
+        "description": "**Purpose:** Permanently deletes a user account.\n\n**Method:** DELETE  \n**Endpoint:** /theana-mansour/users/{id}\n\n**Required parameter:**\n\n- id: ID of the user to delete.\n    \n\n**Request body:** None.\n\n**Authorization:**\n\n- Security Administrator: Allowed (cannot delete their own account).\n    \n- Security Analyst: No access.\n    \n- Regular Employee: No access.\n    \n- Auditor: No access.\n    \n\n**Success response:**\n\n- 200 OK: User deleted successfully.\n\n**Error responses:**\n\n- 401 Unauthorized: Missing, invalid, or expired authentication token.\n    \n- 403 Forbidden: Not an administrator, or an administrator deleting their own account.\n    \n- 404 Not Found: User ID does not exist.\n    \n- 409 Conflict: Other records (for example assets or incidents) still reference this user.\n\n**Validation and security:**\n\n- Permissions are checked from the token and the user's current role in the database.\n    \n- A deleted user's existing tokens stop working immediately.\n    \n- The deletion is recorded in the Security Audit Logging Service."
+      },
+      "response": [
+        {
+          "name": "DELETE User - Success (using administrator acc user1)",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "3"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:44:46 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "45"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"User deleted successfully\"\n}"
+        },
+        {
+          "name": "DELETE User - FAILED (from user2)",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "4"
+              ]
+            }
+          },
+          "status": "FORBIDDEN",
+          "code": 403,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "server",
+              "value": "Werkzeug/3.1.9 Python/3.14.4"
+            },
+            {
+              "key": "date",
+              "value": "Tue, 13 Oct 2026 17:53:15 GMT"
+            },
+            {
+              "key": "content-type",
+              "value": "application/json"
+            },
+            {
+              "key": "content-length",
+              "value": "58"
+            },
+            {
+              "key": "connection",
+              "value": "close"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Permission denied\",\n  \"status\": \"error\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "PUT Update User Role",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"role\": \"Security Analyst\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/2/role",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "2",
+            "role"
+          ]
+        },
+        "description": "**Purpose:** Allows a Security Administrator to change the role assigned to an existing user.\n\n**Method:** PUT  \n**Endpoint:** /theana-mansour/users/{id}/role\n\n**Required parameter:**\n\n- id: ID of the user whose role will be changed.\n    \n\n**Required field:**\n\n- role: The new role to assign.\n    \n\n**Accepted role values:**\n\n- Security Administrator\n    \n- Security Analyst\n    \n- Regular Employee\n    \n- Auditor\n    \n\nRole values are case-sensitive and must match exactly.\n\n**Authorization:**\n\n- Security Administrator: Allowed.\n    \n- Security Analyst: No access.\n    \n- Regular Employee: No access.\n    \n- Auditor: No access.\n    \n\n**Success response:**\n\n- 200 OK: User role updated successfully.\n    \n\n**Error responses:**\n\n- 400 Bad Request: Missing or invalid role.\n    \n- 401 Unauthorized: Missing, invalid, or expired authentication token.\n    \n- 403 Forbidden: Insufficient permissions or an administrator attempting to change their own role.\n    \n- 404 Not Found: User ID does not exist.\n    \n\n**Validation and security:**\n\n- Only the four specified roles are accepted.\n    \n- The target user must exist.\n    \n- Only Security Administrators can assign or modify roles.\n    \n- Administrators cannot change their own role through this endpoint.\n    \n- The updated role is stored in the database.\n    \n- Future protected requests use the user's current database role when checking permissions."
+      },
+      "response": []
+    },
+    {
+      "name": "PUT Update Account Status",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/2/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "2",
+            "status"
+          ]
+        },
+        "description": "**Purpose:** Allows a Security Administrator to activate, deactivate, or suspend a user account.\n\n**Method:** PUT  \n**Endpoint:** /theana-mansour/users/{id}/status\n\n**Required parameter:**\n\n- id: ID of the user whose status will be changed.\n    \n\n**Required field:**\n\n- status: The new account status.\n    \n\n**Accepted status values:**\n\n- Active\n    \n- Inactive\n    \n- Suspended\n    \n\n**Authorization:**\n\n- Security Administrator: Allowed.\n    \n- Security Analyst: No access.\n    \n- Regular Employee: No access.\n    \n- Auditor: No access.\n    \n\n**Success response:**\n\n- 200 OK: Account status updated successfully.\n\n**Error responses:**\n\n- 400 Bad Request: Missing or invalid status, or extra fields.\n    \n- 401 Unauthorized: Missing, invalid, or expired authentication token.\n    \n- 403 Forbidden: Insufficient permissions or an administrator changing their own status.\n    \n- 404 Not Found: User ID does not exist.\n\n**Validation and security:**\n\n- Inactive and Suspended users cannot log in.\n    \n- Tokens issued before a suspension stop working immediately, because every request checks the user's current status in the database.\n    \n- The change is recorded in the Security Audit Logging Service.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Suspended\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST Verify Token",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/auth/verify",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "auth",
+            "verify"
+          ]
+        },
+        "description": "**Purpose:** Lets the other services check a user's token and find out who the user is and what role they have.\n\n**Method:** POST  \n**Endpoint:** /theana-mansour/auth/verify\n\n**Required header:**\n\n- Authorization: Bearer <token>\n    \n\n**Request body:** None.\n\n**Authorization:** Any valid token. Used by Services 2-9 before allowing a request.\n\n**Success response:**\n\n- 200 OK: { \"valid\": true, \"user_id\", \"username\", \"role\" }\n\n**Error responses:**\n\n- 401 Unauthorized: { \"valid\": false } when the token is missing, malformed, expired, signed with another key, or belongs to a deleted, Inactive or Suspended user.\n\n**Validation and security:**\n\n- Tokens are JWTs signed with HS256 and expire after one hour.\n    \n- The user's current database record is checked on every call, so role changes and suspensions apply immediately."
+      },
+      "response": []
+    },
+    {
+      "name": "Service 1 Tests - Access Control and Validation - Theana Mansour",
+      "description": "Runnable test cases for Service 1. Set admin_login and admin_password in the collection variables, then use Run folder. Each run creates new test users (with a run number in the username) and deletes them at the end. Every request has automatic checks in its Tests tab.",
+      "item": [
+        {
+          "name": "00 Setup - Login as Security Administrator",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('run_id', String(Date.now()).slice(-7));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set('token', pm.response.json().token);",
+                  "pm.test('Token is a JWT (3 parts)', function () { pm.expect(pm.response.json().token.split('.').length).to.eql(3); });",
+                  "pm.collectionVariables.set('admin_id', pm.response.json().user_id);",
+                  "pm.test('Role is Security Administrator', function () { pm.expect(pm.response.json().role).to.eql('Security Administrator'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Logs in with the administrator set in the collection variables admin_login / admin_password and saves the token. Also creates a run number so every run uses new usernames.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{admin_login}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01 Register - Regular Employee, no token (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('employee_id', pm.response.json().user_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Anyone can create a Regular Employee account.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Emp Test\",\n  \"username\": \"emp{{run_id}}\",\n  \"email\": \"emp{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 Register - 'Regular User' alias saved as Regular Employee (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('alias_id', pm.response.json().user_id);",
+                  "pm.test('Role normalised', function () { pm.expect(pm.response.json().role).to.eql('Regular Employee'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "The alias Regular User is accepted and stored as Regular Employee.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Alias Test\",\n  \"username\": \"alias{{run_id}}\",\n  \"email\": \"alias{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Regular User\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 Register - Security Analyst by administrator (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('analyst_id', pm.response.json().user_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Only administrators can create privileged roles.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Analyst Test\",\n  \"username\": \"analyst{{run_id}}\",\n  \"email\": \"analyst{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Security Analyst\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 Register - Auditor by administrator (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('auditor_id', pm.response.json().user_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Administrator creates an Auditor.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Auditor Test\",\n  \"username\": \"auditor{{run_id}}\",\n  \"email\": \"auditor{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Auditor\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04b Register - User to delete later, by administrator (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('delete_id', pm.response.json().user_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Created by the administrator (so the registration audit record points to the administrator, not to this user) and never logs in. No record points to it, so it can be deleted even when Service 5 keeps its logs in the shared database.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Delete Me\",\n  \"username\": \"deleteme{{run_id}}\",\n  \"email\": \"deleteme{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Auditor\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 Register - Privileged role without token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Creating a Security Administrator without logging in is rejected.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Sneaky Test\",\n  \"username\": \"sneaky{{run_id}}\",\n  \"email\": \"sneaky{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Security Administrator\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06 Register - Duplicate username, different capitals (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('Message: Username already exists', function () { pm.expect(pm.response.json().message).to.eql('Username already exists'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Usernames are unique, ignoring capital letters.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Emp Test\",\n  \"username\": \"EMP{{run_id}}\",\n  \"email\": \"other{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07 Register - Duplicate email (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('Message: Email already exists', function () { pm.expect(pm.response.json().message).to.eql('Email already exists'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Emails are unique, ignoring capital letters.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Dup Test\",\n  \"username\": \"dup{{run_id}}\",\n  \"email\": \"EMP{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08 Register - Missing fields (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Every field is required.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"incomplete{{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "09 Register - Invalid email format (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Message: Invalid email format', function () { pm.expect(pm.response.json().message).to.eql('Invalid email format'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Email format is validated.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Bademail Test\",\n  \"username\": \"bademail{{run_id}}\",\n  \"email\": \"not-an-email\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10 Register - Weak password (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Passwords need at least 8 characters including a letter and a number.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Weak Test\",\n  \"username\": \"weak{{run_id}}\",\n  \"email\": \"weak{{run_id}}@example.com\",\n  \"password\": \"abcdefgh\",\n  \"department\": \"IT\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "11 Register - Invalid role (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Message: Invalid role', function () { pm.expect(pm.response.json().message).to.eql('Invalid role'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Only the four system roles are accepted.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Badrole Test\",\n  \"username\": \"badrole{{run_id}}\",\n  \"email\": \"badrole{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Superuser\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "12 Register - Username too short (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Message: username must be between 3 and 50 characters', function () { pm.expect(pm.response.json().message).to.eql('username must be between 3 and 50 characters'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Usernames must be 3-50 characters.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"X Test\",\n  \"username\": \"ab\",\n  \"email\": \"x{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "13 Register - Body is not JSON (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Message: A JSON object is required', function () { pm.expect(pm.response.json().message).to.eql('A JSON object is required'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Malformed requests are rejected.",
+            "body": {
+              "mode": "raw",
+              "raw": "this is not json",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "14 Register - SQL injection text treated as data (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "Input like ' OR '1'='1 is never run as SQL; here it fails email validation.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Inject Test\",\n  \"username\": \"inject{{run_id}}\",\n  \"email\": \"' OR '1'='1\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "15 Login - Regular Employee by username (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set('employee_token', pm.response.json().token);",
+                  "pm.test('Token is a JWT (3 parts)', function () { pm.expect(pm.response.json().token.split('.').length).to.eql(3); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Saves employee_token.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"emp{{run_id}}\",\n  \"password\": \"Passw0rd1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "16 Login - Security Analyst by email (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set('analyst_token', pm.response.json().token);",
+                  "pm.test('Token is a JWT (3 parts)', function () { pm.expect(pm.response.json().token.split('.').length).to.eql(3); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Login also works with the email address. Saves analyst_token.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"analyst{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "17 Login - Auditor (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set('auditor_token', pm.response.json().token);",
+                  "pm.test('Token is a JWT (3 parts)', function () { pm.expect(pm.response.json().token.split('.').length).to.eql(3); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Saves auditor_token.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"auditor{{run_id}}\",\n  \"password\": \"Passw0rd1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "18 Login - Alias user (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.collectionVariables.set('alias_token', pm.response.json().token);",
+                  "pm.test('Token is a JWT (3 parts)', function () { pm.expect(pm.response.json().token.split('.').length).to.eql(3); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Saves alias_token (used later to show that a deleted user's token stops working).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"alias{{run_id}}\",\n  \"password\": \"Passw0rd1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "19 Login - Wrong password (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('Message: Invalid credentials', function () { pm.expect(pm.response.json().message).to.eql('Invalid credentials'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Failed authentication.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"emp{{run_id}}\",\n  \"password\": \"Wrong1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "20 Login - Unknown user (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('Message: Invalid credentials', function () { pm.expect(pm.response.json().message).to.eql('Invalid credentials'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Same message as a wrong password, so attackers can't tell which usernames exist.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"nobody{{run_id}}\",\n  \"password\": \"Passw0rd1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "21 Login - Missing password (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Both fields are required.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"emp{{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "22 GET All Users - Security Administrator (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('No password hashes returned', function () { pm.response.json().forEach(function (u) { pm.expect(u).to.not.have.property('password_hash'); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users"
+              ]
+            },
+            "description": "Only Security Administrators and Auditors can list all users."
+          },
+          "response": []
+        },
+        {
+          "name": "23 GET All Users - Auditor (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('No password hashes returned', function () { pm.response.json().forEach(function (u) { pm.expect(u).to.not.have.property('password_hash'); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auditor_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users"
+              ]
+            },
+            "description": "Only Security Administrators and Auditors can list all users."
+          },
+          "response": []
+        },
+        {
+          "name": "24 GET All Users - Security Analyst (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{analyst_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users"
+              ]
+            },
+            "description": "Only Security Administrators and Auditors can list all users."
+          },
+          "response": []
+        },
+        {
+          "name": "25 GET All Users - Regular Employee (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users"
+              ]
+            },
+            "description": "Only Security Administrators and Auditors can list all users."
+          },
+          "response": []
+        },
+        {
+          "name": "26 GET All Users - no token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users"
+              ]
+            },
+            "description": "Only Security Administrators and Auditors can list all users."
+          },
+          "response": []
+        },
+        {
+          "name": "27 GET All Users - invalid token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "not-a-real-token",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users"
+              ]
+            },
+            "description": "Only Security Administrators and Auditors can list all users."
+          },
+          "response": []
+        },
+        {
+          "name": "28 GET User by Username - Regular Employee views own profile (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/emp{{run_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "emp{{run_id}}"
+              ]
+            },
+            "description": "Employees can only view themselves; administrators and auditors can view anyone."
+          },
+          "response": []
+        },
+        {
+          "name": "29 GET User by Username - Regular Employee views another user (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/analyst{{run_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "analyst{{run_id}}"
+              ]
+            },
+            "description": "Employees can only view themselves; administrators and auditors can view anyone."
+          },
+          "response": []
+        },
+        {
+          "name": "30 GET User by Username - Auditor views another user (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auditor_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/emp{{run_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "emp{{run_id}}"
+              ]
+            },
+            "description": "Employees can only view themselves; administrators and auditors can view anyone."
+          },
+          "response": []
+        },
+        {
+          "name": "31 GET User by Username - Security Analyst views a user (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{analyst_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/emp{{run_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "emp{{run_id}}"
+              ]
+            },
+            "description": "Employees can only view themselves; administrators and auditors can view anyone."
+          },
+          "response": []
+        },
+        {
+          "name": "32 GET User by Username - Administrator views non-existing user (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/nobody{{run_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "nobody{{run_id}}"
+              ]
+            },
+            "description": "Employees can only view themselves; administrators and auditors can view anyone."
+          },
+          "response": []
+        },
+        {
+          "name": "33 PUT Update User - Regular Employee updates own profile (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Department changed', function () { pm.expect(pm.response.json().user.department).to.eql('Finance'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}"
+              ]
+            },
+            "description": "Employees can update only their own name, email and department.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"department\": \"Finance\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "34 PUT Update User - Regular Employee updates another user (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{analyst_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{analyst_id}}"
+              ]
+            },
+            "description": "Employees can update only their own name, email and department.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"department\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "35 PUT Update User - Administrator updates another user (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{analyst_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{analyst_id}}"
+              ]
+            },
+            "description": "Employees can update only their own name, email and department.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Analyst Updated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "36 PUT Update User - Auditor tries to update (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auditor_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}"
+              ]
+            },
+            "description": "Employees can update only their own name, email and department.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"department\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "37 PUT Update User - Security Analyst tries to update (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{analyst_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}"
+              ]
+            },
+            "description": "Employees can update only their own name, email and department.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"department\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "38 PUT Update User - Changing role through this endpoint (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Message: Invalid update fields', function () { pm.expect(pm.response.json().message).to.eql('Invalid update fields'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}"
+              ]
+            },
+            "description": "Employees can update only their own name, email and department.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Security Administrator\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "39 PUT Update User - Empty value (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Message: Update values cannot be empty', function () { pm.expect(pm.response.json().message).to.eql('Update values cannot be empty'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}"
+              ]
+            },
+            "description": "Employees can update only their own name, email and department.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"  \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "40 PUT Update User - Email used by another account (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });",
+                  "pm.test('Message: Email already exists', function () { pm.expect(pm.response.json().message).to.eql('Email already exists'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}"
+              ]
+            },
+            "description": "Employees can update only their own name, email and department.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"analyst{{run_id}}@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "41 PUT Update User - Non-existing user (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Message: User not found', function () { pm.expect(pm.response.json().message).to.eql('User not found'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "999999"
+              ]
+            },
+            "description": "Employees can update only their own name, email and department.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"department\": \"X\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "42 Register - Privileged role by Regular Employee (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Message: Only administrators can assign roles', function () { pm.expect(pm.response.json().message).to.eql('Only administrators can assign roles'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "register"
+              ]
+            },
+            "description": "A logged-in employee still cannot create an Auditor.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Sneaky2 Test\",\n  \"username\": \"sneaky2{{run_id}}\",\n  \"email\": \"sneaky2{{run_id}}@example.com\",\n  \"password\": \"Passw0rd1\",\n  \"department\": \"IT\",\n  \"role\": \"Auditor\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "43 PUT Role - Administrator promotes user (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{alias_id}}/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{alias_id}}",
+                "role"
+              ]
+            },
+            "description": "Administrator changes a user's role.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Security Analyst\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "44 PUT Role - 'Regular User' alias (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{alias_id}}/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{alias_id}}",
+                "role"
+              ]
+            },
+            "description": "The alias is saved as Regular Employee.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Regular User\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "45 GET User - Alias role saved as Regular Employee (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Role is Regular Employee', function () { pm.expect(pm.response.json().role).to.eql('Regular Employee'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/alias{{run_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "alias{{run_id}}"
+              ]
+            },
+            "description": "Confirms the stored role."
+          },
+          "response": []
+        },
+        {
+          "name": "46 PUT Role - Security Analyst tries (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{analyst_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}",
+                "role"
+              ]
+            },
+            "description": "Only administrators manage roles.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Auditor\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "47 PUT Role - Invalid role (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}",
+                "role"
+              ]
+            },
+            "description": "Only the four roles are accepted.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Boss\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "48 PUT Role - Administrator changes own role (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Message: Cannot change your own role', function () { pm.expect(pm.response.json().message).to.eql('Cannot change your own role'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{admin_id}}/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{admin_id}}",
+                "role"
+              ]
+            },
+            "description": "Administrators cannot change their own role.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Auditor\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "49 Verify Token - Valid employee token (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Has the 4 fields', function () { pm.expect(Object.keys(pm.response.json()).sort()).to.eql(['role','user_id','username','valid']); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/auth/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "auth",
+                "verify"
+              ]
+            },
+            "description": "Returns exactly valid, user_id, username and role."
+          },
+          "response": []
+        },
+        {
+          "name": "50 PUT Status - Administrator suspends employee (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}",
+                "status"
+              ]
+            },
+            "description": "Suspends the account.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Suspended\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "51 Verify Token - Suspended user's old token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('valid is false', function () { pm.expect(pm.response.json().valid).to.eql(false); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/auth/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "auth",
+                "verify"
+              ]
+            },
+            "description": "The token was valid a moment ago; it stops working once the account is suspended."
+          },
+          "response": []
+        },
+        {
+          "name": "52 Login - Suspended user (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Message: Account is not active', function () { pm.expect(pm.response.json().message).to.eql('Account is not active'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Suspended accounts cannot log in.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"emp{{run_id}}\",\n  \"password\": \"Passw0rd1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "53 PUT Status - Set Inactive (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}",
+                "status"
+              ]
+            },
+            "description": "Inactive accounts are also blocked.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Inactive\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "54 Login - Inactive user (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "login"
+              ]
+            },
+            "description": "Inactive accounts cannot log in.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"emp{{run_id}}\",\n  \"password\": \"Passw0rd1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "55 PUT Status - Reactivate (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}",
+                "status"
+              ]
+            },
+            "description": "Back to Active.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "56 Verify Token - Works again after reactivation (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/auth/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "auth",
+                "verify"
+              ]
+            },
+            "description": "The same token is accepted again."
+          },
+          "response": []
+        },
+        {
+          "name": "57 PUT Status - Invalid status (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}",
+                "status"
+              ]
+            },
+            "description": "Only Active, Inactive or Suspended.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Deleted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "58 PUT Status - Administrator changes own status (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{admin_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{admin_id}}",
+                "status"
+              ]
+            },
+            "description": "Administrators cannot suspend themselves.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Suspended\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "59 PUT Status - Auditor tries (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auditor_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}",
+                "status"
+              ]
+            },
+            "description": "Only administrators manage account status.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Suspended\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "60 Verify Token - Invalid token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "not-a-real-token",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/auth/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "auth",
+                "verify"
+              ]
+            },
+            "description": "Malformed tokens are rejected."
+          },
+          "response": []
+        },
+        {
+          "name": "61 Verify Token - No token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/auth/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "auth",
+                "verify"
+              ]
+            },
+            "description": "Missing token."
+          },
+          "response": []
+        },
+        {
+          "name": "62 DELETE User - Regular Employee tries (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Message: Permission denied', function () { pm.expect(pm.response.json().message).to.eql('Permission denied'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{employee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{delete_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{delete_id}}"
+              ]
+            },
+            "description": "Unauthorized deletion attempt."
+          },
+          "response": []
+        },
+        {
+          "name": "63 DELETE User - Auditor tries (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auditor_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{delete_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{delete_id}}"
+              ]
+            },
+            "description": "Auditors are read-only."
+          },
+          "response": []
+        },
+        {
+          "name": "64 DELETE User - Administrator deletes own account (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{admin_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{admin_id}}"
+              ]
+            },
+            "description": "Administrators cannot delete themselves."
+          },
+          "response": []
+        },
+        {
+          "name": "65 DELETE User - Administrator deletes user (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Message: User deleted successfully', function () { pm.expect(pm.response.json().message).to.eql('User deleted successfully'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{delete_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{delete_id}}"
+              ]
+            },
+            "description": "Successful deletion of a user with no linked records (no assets, incidents or audit logs point to it)."
+          },
+          "response": []
+        },
+        {
+          "name": "66 GET User - Deleted user is gone (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/deleteme{{run_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "deleteme{{run_id}}"
+              ]
+            },
+            "description": "After deletion the user no longer exists."
+          },
+          "response": []
+        },
+        {
+          "name": "67 DELETE User - Already deleted (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Message: User not found', function () { pm.expect(pm.response.json().message).to.eql('User not found'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{delete_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{delete_id}}"
+              ]
+            },
+            "description": "User not found."
+          },
+          "response": []
+        },
+        {
+          "name": "68 Cleanup - Delete test employee (200 or 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is one of 200, 409 (409 = protected by audit history)', function () { pm.expect([200, 409]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{employee_id}}"
+              ]
+            },
+            "description": "Removes the accounts this run created. Returns 409 instead of 200 when the user's audit history (stored by Service 5 in the shared database) still points to them; that is the foreign key protecting the audit trail, so both results pass."
+          },
+          "response": []
+        },
+        {
+          "name": "69 Cleanup - Delete test analyst (200 or 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is one of 200, 409 (409 = protected by audit history)', function () { pm.expect([200, 409]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{analyst_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{analyst_id}}"
+              ]
+            },
+            "description": "Removes the accounts this run created. Returns 409 instead of 200 when the user's audit history (stored by Service 5 in the shared database) still points to them; that is the foreign key protecting the audit trail, so both results pass."
+          },
+          "response": []
+        },
+        {
+          "name": "70 Cleanup - Delete test auditor (200 or 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is one of 200, 409 (409 = protected by audit history)', function () { pm.expect([200, 409]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{auditor_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{auditor_id}}"
+              ]
+            },
+            "description": "Removes the accounts this run created. Returns 409 instead of 200 when the user's audit history (stored by Service 5 in the shared database) still points to them; that is the foreign key protecting the audit trail, so both results pass."
+          },
+          "response": []
+        },
+        {
+          "name": "71 Cleanup - Delete alias user (200 or 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is one of 200, 409 (409 = protected by audit history)', function () { pm.expect([200, 409]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/theana-mansour/users/{{alias_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "theana-mansour",
+                "users",
+                "{{alias_id}}"
+              ]
+            },
+            "description": "Removes the accounts this run created. Returns 409 instead of 200 when the user's audit history (stored by Service 5 in the shared database) still points to them; that is the foreign key protecting the audit trail, so both results pass."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5001"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "employee_token",
+      "value": ""
+    },
+    {
+      "key": "admin_login",
+      "value": "theanamansour"
+    },
+    {
+      "key": "admin_password",
+      "value": ""
+    },
+    {
+      "key": "analyst_token",
+      "value": ""
+    },
+    {
+      "key": "auditor_token",
+      "value": ""
+    },
+    {
+      "key": "alias_token",
+      "value": ""
+    },
+    {
+      "key": "admin_id",
+      "value": ""
+    },
+    {
+      "key": "employee_id",
+      "value": ""
+    },
+    {
+      "key": "analyst_id",
+      "value": ""
+    },
+    {
+      "key": "auditor_id",
+      "value": ""
+    },
+    {
+      "key": "alias_id",
+      "value": ""
+    },
+    {
+      "key": "delete_id",
+      "value": ""
+    },
+    {
+      "key": "run_id",
+      "value": ""
+    }
+  ]
+}

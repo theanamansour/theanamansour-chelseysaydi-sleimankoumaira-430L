@@ -18,7 +18,7 @@ from services.playbooks.auth import (
     require_roles,
     send_audit_log,
 )
-from services.playbooks.database import DEFAULT_DATABASE, init_db
+from services.playbooks.database import get_database_path, init_db
 from services.playbooks.repository import PlaybookRepository
 from services.playbooks.validation import (
     validate_action_update,
@@ -47,7 +47,7 @@ def repository():
 
 def create_app(database_path=None):
     app = Flask(__name__)
-    app.config["DATABASE_PATH"] = str(database_path or DEFAULT_DATABASE)
+    app.config["DATABASE_PATH"] = str(database_path or get_database_path())
     app.config["SERVICE_NAME"] = SERVICE_NAME
     app.json.sort_keys = False
     init_db(app.config["DATABASE_PATH"])
@@ -60,7 +60,12 @@ def create_app(database_path=None):
         if errors:
             return error("Validation failed", 400, errors)
 
-        playbook = repository().create(data, g.current_user["user_id"])
+        try:
+            playbook = repository().create(data, g.current_user["user_id"])
+        except sqlite3.IntegrityError:
+            return error(
+                f"A playbook named '{data['playbook_name']}' already exists", 409
+            )
         send_audit_log(
             g.current_user["user_id"],
             "PLAYBOOK_CREATED",
@@ -134,12 +139,17 @@ def create_app(database_path=None):
                 "Earlier response actions must be completed first", 409
             )
 
-        updated = repository().update_action(
-            action_id,
-            data["status"],
-            data["assigned_user_id"],
-            g.current_user["user_id"],
-        )
+        try:
+            updated = repository().update_action(
+                action_id,
+                data["status"],
+                data["assigned_user_id"],
+                g.current_user["user_id"],
+            )
+        except sqlite3.IntegrityError:
+            return error(
+                f"User with ID {data['assigned_user_id']} not found", 400
+            )
         send_audit_log(
             g.current_user["user_id"],
             "RESPONSE_ACTION_UPDATED",

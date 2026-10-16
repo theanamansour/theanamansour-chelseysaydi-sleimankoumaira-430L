@@ -6,6 +6,7 @@ Run from the project root:
     python -m services.incidents.app
 """
 import os
+import sqlite3
 
 from flask import Flask, current_app, g, jsonify, request
 
@@ -18,7 +19,7 @@ from services.incidents.auth import (
     error,
     require_roles,
 )
-from services.incidents.database import DEFAULT_DATABASE, init_db
+from services.incidents.database import get_database_path, init_db
 from services.incidents.repository import IncidentRepository
 from services.incidents.validation import (
     validate_assignment,
@@ -81,7 +82,7 @@ def audit(action, description):
 
 def create_app(database_path=None):
     app = Flask(__name__)
-    app.config["DATABASE_PATH"] = str(database_path or DEFAULT_DATABASE)
+    app.config["DATABASE_PATH"] = str(database_path or get_database_path())
     app.config["SERVICE_NAME"] = SERVICE_NAME
     app.json.sort_keys = False
     init_db(app.config["DATABASE_PATH"])
@@ -112,7 +113,10 @@ def create_app(database_path=None):
         except integrations.ServiceUnavailable as exc:
             return service_problem(exc)
 
-        incident = repository().create(data)
+        try:
+            incident = repository().create(data)
+        except sqlite3.IntegrityError:
+            return error("Reporter or affected asset not found", 400)
         audit(
             "INCIDENT_CREATED",
             f"Incident {incident['incident_id']} was created",

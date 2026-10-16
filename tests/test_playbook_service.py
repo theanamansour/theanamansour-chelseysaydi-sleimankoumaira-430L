@@ -37,8 +37,10 @@ IDENTITIES = {
 
 
 @pytest.fixture
-def database_path(tmp_path):
-    return tmp_path / "playbooks.db"
+def database_path(tmp_path, seed_database):
+    path = tmp_path / "security_system.db"
+    seed_database(path)
+    return path
 
 
 @pytest.fixture
@@ -130,6 +132,29 @@ def test_invalid_playbook_is_rejected(client, changes, expected):
     response = create_playbook(client, {**PLAYBOOK, **changes})
     assert response.status_code == 400
     assert any(expected in item for item in response.get_json()["errors"])
+
+
+def test_duplicate_playbook_name_is_rejected(client):
+    create_playbook(client)
+
+    response = create_playbook(client)
+    assert response.status_code == 409
+    assert "already exists" in response.get_json()["message"]
+
+
+def test_assigning_unknown_user_is_rejected_without_changing_action(client):
+    create_playbook(client)
+    add_action(client, 1)
+
+    response = update_action(client, 1, "In Progress", assigned_user_id=999)
+    assert response.status_code == 400
+    assert response.get_json()["message"] == "User with ID 999 not found"
+
+    action = client.get(f"{URL}/1", headers=auth("admin")).get_json()["data"][
+        "actions"
+    ][0]
+    assert action["status"] == "Pending"
+    assert len(action["history"]) == 1
 
 
 def test_only_admin_can_create_and_employee_has_no_access(client):

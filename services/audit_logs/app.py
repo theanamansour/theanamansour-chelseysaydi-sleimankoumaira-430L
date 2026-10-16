@@ -7,6 +7,7 @@ Run from the project root:
 """
 import hmac
 import os
+import sqlite3
 
 from flask import Flask, current_app, g, jsonify, request
 
@@ -18,7 +19,7 @@ from services.audit_logs.auth import (
     error,
     require_roles,
 )
-from services.audit_logs.database import DEFAULT_DATABASE, init_db
+from services.audit_logs.database import get_database_path, init_db
 from services.audit_logs.repository import AuditLogRepository
 from services.audit_logs.validation import (
     positive_id,
@@ -47,7 +48,7 @@ def repository():
 
 def create_app(database_path=None, internal_service_key=None):
     app = Flask(__name__)
-    app.config["DATABASE_PATH"] = str(database_path or DEFAULT_DATABASE)
+    app.config["DATABASE_PATH"] = str(database_path or get_database_path())
     app.config["SERVICE_NAME"] = SERVICE_NAME
     app.config["INTERNAL_SERVICE_KEY"] = internal_service_key or os.environ.get(
         "INTERNAL_SERVICE_KEY", "dev-only-internal-service-key"
@@ -72,7 +73,10 @@ def create_app(database_path=None, internal_service_key=None):
         if errors:
             return error("Validation failed", 400, errors)
 
-        log = repository().create(data)
+        try:
+            log = repository().create(data)
+        except sqlite3.IntegrityError:
+            return error(f"User with ID {data['user_id']} not found", 400)
         return success(log, "Security log created successfully", 201)
 
     # 2. Retrieve All Logs - Chelsea Saydi

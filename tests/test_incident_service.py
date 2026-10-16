@@ -25,8 +25,10 @@ USERS = {
 
 
 @pytest.fixture
-def database_path(tmp_path):
-    return tmp_path / "incidents.db"
+def database_path(tmp_path, seed_database):
+    path = tmp_path / "security_system.db"
+    seed_database(path, asset_ids=(8,))
+    return path
 
 
 @pytest.fixture
@@ -129,6 +131,27 @@ def test_missing_asset_is_rejected(client):
     response = create_incident(client, data={**INCIDENT, "asset_id": 999})
     assert response.status_code == 400
     assert response.get_json()["message"] == "Affected asset not found"
+
+
+def test_asset_missing_from_shared_database_is_rejected(client, monkeypatch):
+    monkeypatch.setattr(integrations, "asset_exists", lambda *_args: True)
+
+    response = create_incident(client, data={**INCIDENT, "asset_id": 9})
+    assert response.status_code == 400
+    assert response.get_json()["message"] == "Reporter or affected asset not found"
+
+
+def test_foreign_keys_are_enforced_by_the_database(database_path):
+    create_app(database_path)
+    with sqlite3.connect(database_path) as db, pytest.raises(sqlite3.IntegrityError):
+        db.execute("PRAGMA foreign_keys = ON")
+        db.execute(
+            """
+            INSERT INTO incidents
+                (title, description, category, severity, reporter_id, asset_id)
+            VALUES ('Test', 'Unknown reporter', 'Test', 'Low', 999, 8)
+            """
+        )
 
 
 def test_employee_cannot_report_as_someone_else(client):

@@ -12,6 +12,7 @@ Who sees what:
   - Other services (e.g. threat alerts from Service 4) create notifications with the
     internal X-Service-Key header instead of a user token.
 """
+import sqlite3
 
 from flask import Blueprint, Flask, current_app, g, request
 
@@ -65,6 +66,10 @@ def deny_if_not_own(owner_id):
     return None
 
 
+def unknown_recipient(user_id):
+    return error_response("Validation failed", 400, [f"user_id {user_id} does not match any registered user"])
+
+
 @notification_routes.route("/notifications", methods=["POST"])
 @require_roles(ADMIN, allow_service_key=True)
 def create_notification():
@@ -74,16 +79,20 @@ def create_notification():
         return error_response("Validation failed", 400, errors)
 
     # A Security Administrator types the user ID, so it is checked with Service 1.
-    # Other services (internal key) send IDs they already received from Service 1.
+    # Other services (internal key) send IDs they already received from Service 1; for them the
+    # shared database's foreign key on user_id is the check.
     if g.current_user["role"] != INTERNAL_SERVICE:
         try:
             exists = users_client.user_exists(data["user_id"], g.authorization_header)
         except users_client.UsersServiceUnavailable:
             return error_response("Users service (Service 1) is unavailable, cannot check user_id", 503)
         if not exists:
-            return error_response("Validation failed", 400, [f"user_id {data['user_id']} does not match any registered user"])
+            return unknown_recipient(data["user_id"])
 
-    notification = get_repository().create(data)
+    try:
+        notification = get_repository().create(data)
+    except sqlite3.IntegrityError:  # the user_id foreign key failed in the database
+        return unknown_recipient(data["user_id"])
     created_by = "an internal service" if g.current_user["role"] == INTERNAL_SERVICE else g.current_user["username"]
     log_event(
         "CREATE_NOTIFICATION",

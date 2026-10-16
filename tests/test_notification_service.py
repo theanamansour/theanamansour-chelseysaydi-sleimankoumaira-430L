@@ -122,6 +122,26 @@ def test_wrong_service_key_is_rejected(database_path):
     assert response.status_code == 401
 
 
+def test_user_id_is_a_foreign_key_to_users(database_path):
+    with sqlite3.connect(database_path) as connection:
+        foreign_keys = connection.execute("PRAGMA foreign_key_list(notifications)").fetchall()
+
+    assert [(key[2], key[3], key[4]) for key in foreign_keys] == [("users", "user_id", "id")]
+
+
+def test_service_key_with_an_unknown_user_is_stopped_by_the_foreign_key(database_path):
+    # Other services are not checked with Service 1, so the database's foreign key catches the bad ID.
+    service = create_app(database_path).test_client()
+
+    response = service.post(URL, json={**THREAT_FOR_ANALYST, "user_id": 99},
+                            headers={"X-Service-Key": config.internal_service_key()})
+
+    assert response.status_code == 400
+    assert response.get_json()["errors"] == ["user_id 99 does not match any registered user"]
+    with sqlite3.connect(database_path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM notifications").fetchone()[0] == 0
+
+
 def test_recipient_must_exist_in_users_service(client, database_path):
     response = client.post(URL, json={**INCIDENT_FOR_ANALYST, "user_id": 99})
 

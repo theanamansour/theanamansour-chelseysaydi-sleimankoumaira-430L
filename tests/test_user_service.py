@@ -50,6 +50,15 @@ os.environ.update({
 })
 os.environ.pop("AUDIT_LOG_DISABLED", None)
 
+# Remember which local secret files already exist (from earlier manual runs or
+# other services), so the test below only fails if Service 1 itself creates one.
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SECRET_FILES = (
+    REPO_ROOT / "services" / "users" / ".secret_key",
+    REPO_ROOT / ".internal_service_key",
+)
+SECRET_FILES_BEFORE = {path: path.exists() for path in SECRET_FILES}
+
 import jwt  # noqa: E402
 import pytest  # noqa: E402
 
@@ -122,9 +131,8 @@ def test_service1_uses_shared_database_package():
 
 
 def test_no_secret_files_written_into_repo():
-    root = Path(app_module.__file__).resolve().parents[2]
-    assert not (root / "services" / "users" / ".secret_key").exists()
-    assert not (root / ".internal_service_key").exists()
+    for path, existed_before in SECRET_FILES_BEFORE.items():
+        assert path.exists() == existed_before, f"{path.name} was created by the tests"
     assert app_module.secret_key == SECRET
 
 

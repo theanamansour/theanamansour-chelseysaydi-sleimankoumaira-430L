@@ -4,9 +4,15 @@ __pycache__/
 .venv/
 venv/
 *.db
+*.sqlite3
 .env
 .env.*
+!.env.example
 .DS_Store
+
+# Local secrets (never commit them)
+.secret_key
+.internal_service_key
 
 # Test output
 *.log
@@ -14,12 +20,8 @@ venv/
 coverage.xml
 htmlcov/
 
-# Local SQLite files of Services 2, 4 and 8 (Sleiman Koumaira)
-database/data/
-
 # Local Postman copy with dev tokens filled in (tokens expire, never commit them)
 postman/local/
 
-# Local secrets and the local copy of teammates' services used for integration testing
-.internal_service_key
+# Local copy of teammates' branches used for integration testing
 .worktrees/

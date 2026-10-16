@@ -6,6 +6,7 @@ import pytest
 from database.init_db import init_database
 from services.assets.app import ROUTE_PREFIX, create_app
 from shared import auth, users_client
+from tests.conftest import add_test_users
 
 URL = f"{ROUTE_PREFIX}/assets"
 
@@ -74,8 +75,10 @@ ALL_ASSETS = [WEB_SERVER, HR_LAPTOP, CUSTOMER_DB, PAYROLL_APP, CORE_ROUTER, CLOU
 
 @pytest.fixture
 def database_path(tmp_path):
-    """A brand-new assets database for every test, so tests never touch the real data."""
-    return init_database("assets", str(tmp_path / "assets.db"))
+    """A brand-new copy of the shared database for every test, so tests never touch the real data."""
+    path = init_database("assets", str(tmp_path / "security_system.db"))
+    add_test_users(path)
+    return path
 
 
 @pytest.fixture
@@ -369,6 +372,24 @@ def test_delete_missing_asset_gets_404(client):
     assert client.delete(f"{URL}/999").status_code == 404
 
 
+def test_asset_used_by_an_incident_cannot_be_deleted(client, database_path):
+    client.post(URL, json=WEB_SERVER)
+    init_database("incidents", database_path)  # Chelsea's incidents table, in the same shared database
+    with sqlite3.connect(database_path) as connection:
+        connection.execute(
+            "INSERT INTO incidents (title, description, category, severity, reporter_id, asset_id)"
+            " VALUES ('Phishing email', 'Suspicious link reported', 'Phishing', 'High', 3, 1)"
+        )
+
+    response = client.delete(f"{URL}/1")
+
+    assert response.status_code == 409
+    assert response.get_json()["message"] == (
+        "Asset 1 cannot be deleted because incidents or vulnerabilities still refer to it"
+    )
+    assert client.get(f"{URL}/1").status_code == 200
+
+
 def test_deleted_id_is_never_reused(client):
     client.post(URL, json=WEB_SERVER)
     client.delete(f"{URL}/1")
@@ -396,6 +417,25 @@ def test_update_to_an_owner_that_does_not_exist_is_rejected(client):
 
     assert response.status_code == 400
     assert client.get(f"{URL}/1").get_json()["data"]["owner_id"] == 1
+
+
+def test_owner_id_is_a_foreign_key_to_users(database_path):
+    with sqlite3.connect(database_path) as connection:
+        foreign_keys = connection.execute("PRAGMA foreign_key_list(assets)").fetchall()
+
+    assert [(key[2], key[3], key[4]) for key in foreign_keys] == [("users", "owner_id", "id")]
+
+
+def test_database_foreign_key_also_rejects_an_unknown_owner(client, database_path, monkeypatch):
+    # Service 1 says user 77 exists, but the users table does not have it: the FOREIGN KEY stops the insert.
+    monkeypatch.setattr(users_client, "list_users", lambda authorization_header: [{"id": 77}])
+
+    response = client.post(URL, json={**WEB_SERVER, "owner_id": 77})
+
+    assert response.status_code == 400
+    assert response.get_json()["errors"] == ["owner_id 77 does not match any registered user"]
+    with sqlite3.connect(database_path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM assets").fetchone()[0] == 0
 
 
 def test_owner_check_needs_users_service(client, monkeypatch):

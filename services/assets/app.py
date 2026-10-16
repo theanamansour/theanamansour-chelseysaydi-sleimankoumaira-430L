@@ -6,10 +6,11 @@ Run from the project root:
     python -m services.assets.app
 The service listens on http://127.0.0.1:5002/sleiman-koumaira/assets
 """
-from pathlib import Path
+import sqlite3
 
 from flask import Blueprint, Flask, current_app, g, request
 
+from database.config import get_database_path
 from services.assets.repository import AssetRepository
 from services.assets.validation import validate_asset_update, validate_new_asset, validate_search_criteria
 from shared import audit_client, config, users_client
@@ -40,17 +41,22 @@ def record_change(action, description, severity="Information"):
     )
 
 
+def unknown_owner(owner_id):
+    return error_response("Validation failed", 400, [f"owner_id {owner_id} does not match any registered user"])
+
+
 def check_owner_exists(owner_id):
     """
     The owner must be a real user of Service 1. Returns an error response, or None if the owner exists.
-    (Each service has its own database, so this replaces a SQLite foreign key.)
+    (The shared database also enforces this with a foreign key; asking Service 1 first gives a
+    clear 400 message instead of a database error.)
     """
     try:
         exists = users_client.user_exists(owner_id, g.authorization_header)
     except users_client.UsersServiceUnavailable:
         return error_response("Users service (Service 1) is unavailable, cannot check owner_id", 503)
     if not exists:
-        return error_response("Validation failed", 400, [f"owner_id {owner_id} does not match any registered user"])
+        return unknown_owner(owner_id)
     return None
 
 
@@ -66,7 +72,10 @@ def add_asset():
     if owner_problem:
         return owner_problem
 
-    asset = get_repository().create(asset_data)
+    try:
+        asset = get_repository().create(asset_data)
+    except sqlite3.IntegrityError:  # the owner_id foreign key failed in the database
+        return unknown_owner(asset_data["owner_id"])
     record_change(
         "CREATE_ASSET",
         f"Added asset {asset.asset_id}: {asset.asset_type} '{asset.asset_name}' ({asset.criticality})",
@@ -122,7 +131,12 @@ def update_asset(asset_id):
         if owner_problem:
             return owner_problem
 
-    updated_asset = repository.update(asset_id, changes)
+    try:
+        updated_asset = repository.update(asset_id, changes)
+    except sqlite3.IntegrityError:  # the owner_id foreign key failed in the database
+        if "owner_id" not in changes:
+            raise
+        return unknown_owner(changes["owner_id"])
     changed = ", ".join(
         f"{field}: '{getattr(old_asset, field)}' -> '{value}'" for field, value in changes.items()
     )
@@ -139,7 +153,12 @@ def delete_asset(asset_id):
     if asset is None:
         return error_response(f"Asset with ID {asset_id} not found", 404)
 
-    repository.delete(asset_id)
+    try:
+        repository.delete(asset_id)
+    except sqlite3.IntegrityError:  # incidents or vulnerabilities still point to this asset
+        return error_response(
+            f"Asset {asset_id} cannot be deleted because incidents or vulnerabilities still refer to it", 409
+        )
     record_change(
         "DELETE_ASSET",
         f"Deleted asset {asset_id}: {asset.asset_type} '{asset.asset_name}'",
@@ -151,7 +170,7 @@ def delete_asset(asset_id):
 def create_app(database_path=None):
     """Build the Flask app. Tests pass their own temporary database_path."""
     app = Flask(__name__)
-    app.config["DATABASE_PATH"] = database_path or config.DATABASE_PATHS["assets"]
+    app.config["DATABASE_PATH"] = str(database_path or get_database_path())
     app.config["SERVICE_NAME"] = SERVICE_NAME
     app.json.sort_keys = False  # keep JSON fields in the order we wrote them
     app.register_blueprint(asset_routes, url_prefix=ROUTE_PREFIX)
@@ -160,6 +179,6 @@ def create_app(database_path=None):
 
 
 if __name__ == "__main__":
-    if not Path(config.DATABASE_PATHS["assets"]).exists():
-        raise SystemExit("Database not found. First run:  python -m database.init_db")
+    if not get_database_path().exists():
+        raise SystemExit("Shared database not found. First run:  python -m database.init_db")
     create_app().run(host="127.0.0.1", port=config.SERVICE_PORTS["assets"])

@@ -12,10 +12,10 @@ Who sees what:
   - Other services (e.g. threat alerts from Service 4) create notifications with the
     internal X-Service-Key header instead of a user token.
 """
-from pathlib import Path
 
 from flask import Blueprint, Flask, current_app, g, request
 
+from database.config import get_database_path
 from services.notifications.repository import NotificationRepository
 from services.notifications.validation import validate_new_notification, validate_search_criteria
 from shared import audit_client, config, users_client
@@ -180,7 +180,7 @@ def delete_notification(notification_id):
 def create_app(database_path=None):
     """Build the Flask app. Tests pass their own temporary database_path."""
     app = Flask(__name__)
-    app.config["DATABASE_PATH"] = database_path or config.DATABASE_PATHS["notifications"]
+    app.config["DATABASE_PATH"] = str(database_path or get_database_path())
     app.config["SERVICE_NAME"] = SERVICE_NAME
     app.json.sort_keys = False  # keep JSON fields in the order we wrote them
     app.register_blueprint(notification_routes, url_prefix=ROUTE_PREFIX)
@@ -189,6 +189,6 @@ def create_app(database_path=None):
 
 
 if __name__ == "__main__":
-    if not Path(config.DATABASE_PATHS["notifications"]).exists():
-        raise SystemExit("Database not found. First run:  python -m database.init_db")
+    if not get_database_path().exists():
+        raise SystemExit("Shared database not found. First run:  python -m database.init_db")
     create_app().run(host="127.0.0.1", port=config.SERVICE_PORTS["notifications"])

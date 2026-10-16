@@ -339,7 +339,8 @@ HTTP 400
 }
 ```
 
-**Possible errors:** 401, 403, 404 (no asset with this ID).
+**Possible errors:** 401, 403, 404 (no asset with this ID), 409 (incidents or vulnerabilities
+still refer to this asset, so it is kept).
 
 ---
 
@@ -347,10 +348,10 @@ HTTP 400
 
 | Relationship (assignment) | How it is handled |
 |---|---|
-| Each asset has one owner; one user owns many assets | `owner_id` stores the owner's user ID from Service 1. Each service has its own SQLite database, so this is a **logical foreign key**: before saving (POST, or PUT that changes the owner) the service calls Service 1's `GET /theana-mansour/users` with the administrator's token and rejects an ID that does not exist (400). |
+| Each asset has one owner; one user owns many assets | `owner_id` is a **foreign key** to `users(id)` in the team's shared SQLite database. Before saving (POST, or PUT that changes the owner) the service also calls Service 1's `GET /theana-mansour/users` with the administrator's token, so an ID that does not exist gets a clear 400 message. |
 | Department | Stored as text on the asset (the assignment defines no departments table). |
-| Related incidents (Service 3) | `incidents.asset_id` will hold an `asset_id` from this service. |
-| Related vulnerabilities (Service 7) | `vulnerabilities.affected_asset_id` will hold an `asset_id` from this service. |
+| Related incidents (Service 3) | `incidents.asset_id` is a foreign key to `assets(asset_id)`. |
+| Related vulnerabilities (Service 7) | `vulnerabilities.affected_asset_id` is a foreign key to `assets(asset_id)`. |
 
 ## Automatic audit logging
 
@@ -366,5 +367,5 @@ service prints `Audit service unreachable, log not saved` and continues.
 | Request without a valid token (401) | `UNAUTHENTICATED_ACCESS` | Warning |
 | Role not allowed (403) | `PERMISSION_DENIED` | Warning |
 
-Still to agree with the team: what happens when an asset that incidents or vulnerabilities
-still refer to is deleted (those services keep their own databases).
+An asset that incidents or vulnerabilities still refer to cannot be deleted: the shared
+database's foreign keys refuse it, and the API answers 409 and keeps the asset.

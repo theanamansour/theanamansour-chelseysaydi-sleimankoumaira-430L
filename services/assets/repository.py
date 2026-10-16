@@ -4,10 +4,8 @@ Service 2 - Asset Management Service (Sleiman Koumaira)
 All SQL for the assets table lives here. Every query uses "?" placeholders, so user
 input is sent to SQLite separately from the SQL text (this prevents SQL injection).
 """
-from contextlib import closing
-
+from database.connection import get_db  # the team's shared database (foreign keys on)
 from services.assets.models import UPDATABLE_FIELDS, Asset
-from shared.database import get_connection
 
 # Search rules: these fields must match exactly...
 EXACT_MATCH_FIELDS = ("asset_type", "criticality")
@@ -31,17 +29,16 @@ class AssetRepository:
     def create(self, asset_data):
         """INSERT a new asset and return it as an Asset object (with its new ID)."""
         placeholders = ", ".join("?" for _ in INSERT_COLUMNS)
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             cursor = connection.execute(
                 f"INSERT INTO assets ({', '.join(INSERT_COLUMNS)}) VALUES ({placeholders})",
                 [asset_data[column] for column in INSERT_COLUMNS],
             )
-            connection.commit()
             new_id = cursor.lastrowid
         return self.get_by_id(new_id)
 
     def get_all(self):
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             rows = connection.execute("SELECT * FROM assets ORDER BY asset_id").fetchall()
         return [Asset.from_row(row) for row in rows]
 
@@ -49,7 +46,7 @@ class AssetRepository:
         """Return the Asset, or None if no row has this ID."""
         if asset_id > MAX_SQLITE_INTEGER:
             return None  # too big to ever be an ID (SQLite would raise an error)
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             row = connection.execute("SELECT * FROM assets WHERE asset_id = ?", (asset_id,)).fetchone()
         return Asset.from_row(row) if row else None
 
@@ -71,7 +68,7 @@ class AssetRepository:
                 parameters.append(f"%{_escape_like(criteria[field])}%")
 
         sql = f"SELECT * FROM assets WHERE {' AND '.join(conditions)} ORDER BY asset_id"
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             rows = connection.execute(sql, parameters).fetchall()
         return [Asset.from_row(row) for row in rows]
 
@@ -83,9 +80,8 @@ class AssetRepository:
         set_clause = ", ".join(f"{field} = ?" for field in fields)
         parameters = [changes[field] for field in fields] + [asset_id]
 
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             cursor = connection.execute(f"UPDATE assets SET {set_clause} WHERE asset_id = ?", parameters)
-            connection.commit()
             if cursor.rowcount == 0:
                 return None
         return self.get_by_id(asset_id)
@@ -94,9 +90,8 @@ class AssetRepository:
         """DELETE the row. Returns True if a row was deleted, False if the ID did not exist."""
         if asset_id > MAX_SQLITE_INTEGER:
             return False
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             cursor = connection.execute("DELETE FROM assets WHERE asset_id = ?", (asset_id,))
-            connection.commit()
             return cursor.rowcount > 0
 
 

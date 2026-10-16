@@ -1,8 +1,9 @@
 """
 Reads user information from Service 1 (Users and Identity Management, Theana Mansour).
 
-Each service has its own database, so a user ID stored in our tables (an asset's owner,
-a notification's recipient) is checked by asking Service 1 instead of a SQLite foreign key.
+A user ID stored in our tables (an asset's owner, a notification's recipient) is a foreign
+key to the users table of the shared database. We still ask Service 1 first, so that a wrong
+ID gets a clear 400 message instead of a database error.
 """
 import requests
 

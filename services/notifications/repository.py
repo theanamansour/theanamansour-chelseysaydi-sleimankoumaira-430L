@@ -4,10 +4,8 @@ Service 8 - Notification and Alert Management Service (Sleiman Koumaira)
 All SQL for the notifications table lives here. Every query uses "?" placeholders, so user
 input is sent to SQLite separately from the SQL text (this prevents SQL injection).
 """
-from contextlib import closing
-
+from database.connection import get_db  # the team's shared database (foreign keys on)
 from services.notifications.models import SEARCH_FIELDS, Notification
-from shared.database import get_connection
 
 # Largest number SQLite can store in an INTEGER column.
 MAX_SQLITE_INTEGER = 2**63 - 1
@@ -24,7 +22,7 @@ class NotificationRepository:
 
     def create(self, data):
         """INSERT a new notification (status Unread, no read date) and return it."""
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             cursor = connection.execute(
                 """
                 INSERT INTO notifications (user_id, title, message, notification_type, severity)
@@ -32,7 +30,6 @@ class NotificationRepository:
                 """,
                 (data["user_id"], data["title"], data["message"], data["notification_type"], data["severity"]),
             )
-            connection.commit()
             new_id = cursor.lastrowid
         return self.get_by_id(new_id)
 
@@ -40,7 +37,7 @@ class NotificationRepository:
         """Return the Notification, or None if no row has this ID."""
         if notification_id > MAX_SQLITE_INTEGER:
             return None
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             row = connection.execute(
                 "SELECT * FROM notifications WHERE notification_id = ?", (notification_id,)
             ).fetchone()
@@ -50,7 +47,7 @@ class NotificationRepository:
         """All notifications received by one user (may be an empty list)."""
         if user_id > MAX_SQLITE_INTEGER:
             return []
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             rows = connection.execute(
                 f"SELECT * FROM notifications WHERE user_id = ? {NEWEST_FIRST}", (user_id,)
             ).fetchall()
@@ -64,7 +61,7 @@ class NotificationRepository:
         # Column names come from our own list, never from the user.
         fields = [field for field in SEARCH_FIELDS if field in criteria]
         where = " AND ".join(f"{field} = ?" for field in fields)
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             rows = connection.execute(
                 f"SELECT * FROM notifications WHERE {where} {NEWEST_FIRST}",
                 [criteria[field] for field in fields],
@@ -76,7 +73,7 @@ class NotificationRepository:
         Set status to Read and record the read date (UTC), only if it is still Unread,
         so the first read date is never overwritten. Returns the notification.
         """
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             connection.execute(
                 """
                 UPDATE notifications
@@ -85,14 +82,12 @@ class NotificationRepository:
                 """,
                 (notification_id,),
             )
-            connection.commit()
         return self.get_by_id(notification_id)
 
     def delete(self, notification_id):
         """DELETE the row. Returns True if a row was deleted."""
         if notification_id > MAX_SQLITE_INTEGER:
             return False
-        with closing(get_connection(self.database_path)) as connection:
+        with get_db(self.database_path) as connection:
             cursor = connection.execute("DELETE FROM notifications WHERE notification_id = ?", (notification_id,))
-            connection.commit()
             return cursor.rowcount > 0

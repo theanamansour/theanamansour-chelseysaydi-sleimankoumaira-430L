@@ -8,6 +8,7 @@ from database.init_db import init_database
 from services.notifications.app import ROUTE_PREFIX, create_app
 from services.notifications.repository import NotificationRepository
 from shared import config, users_client
+from tests.conftest import add_test_users
 
 URL = f"{ROUTE_PREFIX}/notifications"
 
@@ -53,8 +54,10 @@ ALL_NOTIFICATIONS = [INCIDENT_FOR_ANALYST, THREAT_FOR_ANALYST, SYSTEM_FOR_EMPLOY
 
 @pytest.fixture
 def database_path(tmp_path):
-    """A brand-new notifications database for every test, so tests never touch the real data."""
-    return init_database("notifications", str(tmp_path / "notifications.db"))
+    """A brand-new copy of the shared database for every test, so tests never touch the real data."""
+    path = init_database("notifications", str(tmp_path / "security_system.db"))
+    add_test_users(path)
+    return path
 
 
 @pytest.fixture
@@ -106,7 +109,7 @@ def test_created_notification_is_stored_in_database(client, database_path):
 def test_another_service_creates_notification_with_the_service_key(database_path, audit_events):
     service = create_app(database_path).test_client()
 
-    response = service.post(URL, json=THREAT_FOR_ANALYST, headers={"X-Service-Key": config.INTERNAL_SERVICE_KEY})
+    response = service.post(URL, json=THREAT_FOR_ANALYST, headers={"X-Service-Key": config.internal_service_key()})
 
     assert response.status_code == 201
     assert audit_events[-1]["user_id"] is None

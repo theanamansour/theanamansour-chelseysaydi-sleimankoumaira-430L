@@ -107,7 +107,7 @@ API_DOCS = {
         name="Delete Asset", method="DELETE", endpoint="/sleiman-koumaira/assets/{id}",
         purpose="Removes an asset.", roles="Security Administrator", params=f"`id` (path, integer). {AUTH}.", body="None.",
         response='200 OK: `{"status": "success", "message": "Asset {id} deleted successfully"}`',
-        errors=f"404 no asset with this ID | {AUTH_ERRORS}",
+        errors=f"404 no asset with this ID | 409 incidents or vulnerabilities still refer to this asset | {AUTH_ERRORS}",
     ),
     # ---------------- Service 8 ----------------
     "note_create": dict(

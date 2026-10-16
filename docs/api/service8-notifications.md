@@ -369,15 +369,17 @@ Content-Type: application/json
 
 ## Database
 
-Table `notifications` (own SQLite database, `database/data/notifications.db`):
+Table `notifications` in the team's shared SQLite database (`database/data/security_system.db`):
 `notification_id` (primary key), `user_id`, `title`, `message`, `notification_type` (CHECK),
 `severity` (CHECK), `status` (CHECK, default `Unread`), `created_at` (default current UTC time),
 `read_at`, plus a CHECK that an unread notification has no read date and a read one has one,
 and an index on `user_id` for fast "notifications of one user" queries.
 
-`user_id` refers to `users.id` in Service 1. Each service has its own database, so this is a
-**logical foreign key**: when a Security Administrator creates a notification, the service asks
-Service 1 (`GET /theana-mansour/users`) whether the user exists.
+`user_id` is a **foreign key** to `users(id)` (Service 1's table in the same database). When a
+Security Administrator creates a notification, the service also asks Service 1
+(`GET /theana-mansour/users`) whether the user exists, so a wrong ID gets a clear 400 message.
+Other services (internal key) are not asked about; for them the foreign key stops an unknown
+`user_id`, which also returns 400.
 
 ## Automatic audit logging
 

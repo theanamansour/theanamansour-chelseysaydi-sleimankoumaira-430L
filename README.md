@@ -143,8 +143,61 @@ python -m services.users.app
 Service 1 listens on `http://127.0.0.1:5001`. Start Service 1 and Service 5 with the
 same `INTERNAL_SERVICE_KEY` so Service 5 accepts Service 1's audit events. Detailed
 documentation is in `docs/service1-users-identity.md`. Its Postman requests and test
-cases are in `postman/Security Incident Management - Sprint 1.postman_collection.json`
-(folder "01 - Users and Identity - Theana Mansour").
+cases are in `postman/Theana_Mansour_Service1.postman_collection.json`.
+
+## Service 6: Security Reports
+
+Service 6 is implemented by Theana Mansour. It builds read-only reports from the shared
+database for Security Administrators and Auditors:
+
+- `GET /theana-mansour/reports/summary` — overall security status
+- `GET /theana-mansour/reports/incidents` — incidents by severity and status
+- `GET /theana-mansour/reports/assets` — assets by type, critical assets
+- `GET /theana-mansour/reports/threats` — threats by severity and type, recent threats
+- `GET /theana-mansour/reports/vulnerabilities` — vulnerabilities by severity and status
+- `GET /theana-mansour/reports/activity` — logins, failed logins, most performed actions
+
+Start Service 1 first (tokens are checked through it), then run:
+
+```bash
+python -m services.reports.app
+```
+
+Service 6 listens on `http://127.0.0.1:5006`. Optional demo data:
+`python -m services.reports.sample_data`. Detailed documentation is in
+`docs/service6-security-reports.md`. Its Postman requests and test cases are in the
+collection `postman/Theana_Mansour_Service6.postman_collection.json`.
+
+## Service 7: Vulnerability Management
+
+Service 7 is implemented by Theana Mansour. It tracks vulnerabilities found on assets:
+
+- `POST /theana-mansour/vulnerabilities` — add a vulnerability (administrator)
+- `GET /theana-mansour/vulnerabilities` — retrieve all vulnerabilities
+- `GET /theana-mansour/vulnerabilities/{id}` — retrieve one vulnerability
+- `PUT /theana-mansour/vulnerabilities/{id}` — update details and advance the status
+- `GET /theana-mansour/vulnerabilities/search` — search by CVE, severity, status or asset
+- `DELETE /theana-mansour/vulnerabilities/{id}` — delete a vulnerability (administrator)
+
+The enforced lifecycle is:
+
+```text
+Open → Under Investigation → In Progress → Resolved → Closed
+```
+
+The severity must match the CVSS score (Low 0.0–3.9, Medium 4.0–6.9, High 7.0–8.9,
+Critical 9.0–10.0). High and Critical vulnerabilities send a Vulnerability Alert
+through Service 8.
+
+Start Service 1 first, then run:
+
+```bash
+python -m services.vulnerabilities.app
+```
+
+Service 7 listens on `http://127.0.0.1:5007`. Detailed documentation is in
+`docs/service7-vulnerability-management.md`. Its Postman requests and test cases are in
+`postman/Theana_Mansour_Service7.postman_collection.json`.
 
 ## Service 3: Incident Management
 

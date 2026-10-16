@@ -172,6 +172,31 @@ Detailed documentation is available at
 `docs/service5-security-audit-logging.md`. The Postman collection is
 `postman/Chelsea_Saydi_Service5.postman_collection.json`.
 
+## Service 9: Security Playbook and Response Automation
+
+Service 9 is implemented by Chelsea Saydi. It provides:
+
+- `POST /chelsea-saydi/playbooks` — create a response playbook
+- `GET /chelsea-saydi/playbooks` — retrieve all playbooks
+- `GET /chelsea-saydi/playbooks/{id}` — retrieve a playbook and its actions
+- `POST /chelsea-saydi/playbooks/{id}/actions` — add an ordered action
+- `PUT /chelsea-saydi/actions/{id}/status` — update action progress
+- `DELETE /chelsea-saydi/playbooks/{id}` — delete a playbook
+
+Start Services 1 and 5, then run:
+
+```bash
+python -m services.playbooks.app
+```
+
+Service 9 listens on `http://127.0.0.1:5009`. It enforces ordered action execution,
+the `Pending → In Progress → Completed` lifecycle, completion timestamps, and permanent
+status history.
+
+Detailed documentation is available at
+`docs/service9-playbook-response-automation.md`. The Postman collection is
+`postman/Chelsea_Saydi_Service9.postman_collection.json`.
+
 ## Testing
 
 Run the automated test suite from the repository root:

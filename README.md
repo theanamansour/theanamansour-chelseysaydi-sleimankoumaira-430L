@@ -143,8 +143,30 @@ python -m services.users.app
 Service 1 listens on `http://127.0.0.1:5001`. Start Service 1 and Service 5 with the
 same `INTERNAL_SERVICE_KEY` so Service 5 accepts Service 1's audit events. Detailed
 documentation is in `docs/service1-users-identity.md`. Its Postman requests and test
-cases are in `postman/Security Incident Management - Sprint 1.postman_collection.json`
-(folder "01 - Users and Identity - Theana Mansour").
+cases are in `postman/Theana_Mansour_Service1.postman_collection.json`.
+
+## Service 6: Security Reports
+
+Service 6 is implemented by Theana Mansour. It builds read-only reports from the shared
+database for Security Administrators and Auditors:
+
+- `GET /theana-mansour/reports/summary` — overall security status
+- `GET /theana-mansour/reports/incidents` — incidents by severity and status
+- `GET /theana-mansour/reports/assets` — assets by type, critical assets
+- `GET /theana-mansour/reports/threats` — threats by severity and type, recent threats
+- `GET /theana-mansour/reports/vulnerabilities` — vulnerabilities by severity and status
+- `GET /theana-mansour/reports/activity` — logins, failed logins, most performed actions
+
+Start Service 1 first (tokens are checked through it), then run:
+
+```bash
+python -m services.reports.app
+```
+
+Service 6 listens on `http://127.0.0.1:5006`. Optional demo data:
+`python -m services.reports.sample_data`. Detailed documentation is in
+`docs/service6-security-reports.md`. Its Postman requests and test cases are in the
+collection `postman/Theana_Mansour_Service6.postman_collection.json`.
 
 ## Service 3: Incident Management
 

@@ -105,6 +105,47 @@ pip install -r requirements.txt
 Never commit generated database files, virtual environments, API tokens, or secret
 keys.
 
+## Shared Database
+
+All services use one SQLite file, `database/data/security_system.db`. You can
+override it with `SYSTEM_DATABASE_PATH`. The generated `.db` file is never committed;
+the SQL files in `database/schema/` define the tables. Create or update every table
+from the repository root:
+
+```bash
+python -m database.init_db
+```
+
+Open connections with `database.connection.get_db`, which turns on
+`PRAGMA foreign_keys = ON`. See `database/README.md` for details.
+
+## Service 1: Users and Identity Management
+
+Service 1 is implemented by Theana Mansour. It provides:
+
+- `POST /theana-mansour/users/register` — register a user
+- `POST /theana-mansour/users/login` — log in and receive a one-hour token
+- `PUT /theana-mansour/users/{id}` — update name, email or department
+- `DELETE /theana-mansour/users/{id}` — delete a user (administrator)
+- `GET /theana-mansour/users` — retrieve all users
+- `GET /theana-mansour/users/{username}` — retrieve one user
+- `PUT /theana-mansour/users/{id}/role` and `/status` — administrator role and
+  account-status changes
+- `POST /theana-mansour/auth/verify` — token check used by the other services
+
+Create the first administrator, then start the service:
+
+```bash
+python -m services.users.create_admin
+python -m services.users.app
+```
+
+Service 1 listens on `http://127.0.0.1:5001`. Start Service 1 and Service 5 with the
+same `INTERNAL_SERVICE_KEY` so Service 5 accepts Service 1's audit events. Detailed
+documentation is in `docs/service1-users-identity.md`. Its Postman requests and test
+cases are in `postman/Security Incident Management - Sprint 1.postman_collection.json`
+(folder "01 - Users and Identity - Theana Mansour").
+
 ## Service 3: Incident Management
 
 This branch contains Service 3, implemented by Chelsea Saydi. It provides:

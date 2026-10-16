@@ -1,26 +1,21 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
 .venv/
 venv/
+*.db
 .env
 .env.*
-!.env.example
-.idea/
-.vscode/
 .DS_Store
-Thumbs.db
-*.log
-coverage.xml
-.coverage
-htmlcov/
-dist/
-build/
-database/data/
-docs/evidence/private/
 
+# Test output
+*.log
+.coverage
+coverage.xml
+htmlcov/
+
+# Local SQLite files of Services 2, 4 and 8 (Sleiman Koumaira)
+database/data/
 
 # Local Postman copy with dev tokens filled in (tokens expire, never commit them)
 postman/local/

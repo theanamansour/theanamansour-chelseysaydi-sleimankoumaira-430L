@@ -26,6 +26,15 @@ ROLES = [ADMIN, ANALYST, EMPLOYEE, AUDITOR]
 STATUSES = ["Active", "Inactive", "Suspended"]
 TOKEN_MAX_AGE = 3600
 
+# Same limits as the CHECK constraints in database/schema/01_users.sql,
+# so bad input gets a clear 400 instead of a database error.
+FIELD_LENGTHS = {
+    "full_name": (1, 150),
+    "username": (3, 50),
+    "email": (3, 254),
+    "department": (1, 100),
+}
+
 
 def normalize_role(role):
     if isinstance(role, str):
@@ -79,6 +88,14 @@ def public_user(user):
 
 def valid_email(email):
     return re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email) is not None
+
+
+def length_problem(field, value):
+    """Return an error message when a field is too short or too long."""
+    shortest, longest = FIELD_LENGTHS[field]
+    if not shortest <= len(value) <= longest:
+        return f"{field} must be between {shortest} and {longest} characters"
+    return None
 
 
 def valid_password(password):
@@ -246,6 +263,16 @@ def register():
     password = data["password"]
     department = data["department"].strip()
     role = normalize_role(data["role"])
+
+    for field, value in (
+        ("full_name", full_name),
+        ("username", username),
+        ("email", email),
+        ("department", department),
+    ):
+        problem = length_problem(field, value)
+        if problem:
+            return error(problem, 400)
 
     if not valid_email(email):
         return error("Invalid email format", 400)
@@ -433,6 +460,11 @@ def update_user(current_user, user_id):
         for value in data.values()
     ):
         return error("Update values cannot be empty", 400)
+
+    for field, value in data.items():
+        problem = length_problem(field, value.strip())
+        if problem:
+            return error(problem, 400)
 
     if "email" in data:
         email = data["email"].strip().lower()

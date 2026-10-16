@@ -168,6 +168,37 @@ Service 6 listens on `http://127.0.0.1:5006`. Optional demo data:
 `docs/service6-security-reports.md`. Its Postman requests and test cases are in the
 collection `postman/Theana_Mansour_Service6.postman_collection.json`.
 
+## Service 7: Vulnerability Management
+
+Service 7 is implemented by Theana Mansour. It tracks vulnerabilities found on assets:
+
+- `POST /theana-mansour/vulnerabilities` — add a vulnerability (administrator)
+- `GET /theana-mansour/vulnerabilities` — retrieve all vulnerabilities
+- `GET /theana-mansour/vulnerabilities/{id}` — retrieve one vulnerability
+- `PUT /theana-mansour/vulnerabilities/{id}` — update details and advance the status
+- `GET /theana-mansour/vulnerabilities/search` — search by CVE, severity, status or asset
+- `DELETE /theana-mansour/vulnerabilities/{id}` — delete a vulnerability (administrator)
+
+The enforced lifecycle is:
+
+```text
+Open → Under Investigation → In Progress → Resolved → Closed
+```
+
+The severity must match the CVSS score (Low 0.0–3.9, Medium 4.0–6.9, High 7.0–8.9,
+Critical 9.0–10.0). High and Critical vulnerabilities send a Vulnerability Alert
+through Service 8.
+
+Start Service 1 first, then run:
+
+```bash
+python -m services.vulnerabilities.app
+```
+
+Service 7 listens on `http://127.0.0.1:5007`. Detailed documentation is in
+`docs/service7-vulnerability-management.md`. Its Postman requests and test cases are in
+`postman/Theana_Mansour_Service7.postman_collection.json`.
+
 ## Service 3: Incident Management
 
 This branch contains Service 3, implemented by Chelsea Saydi. It provides:

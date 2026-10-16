@@ -9,12 +9,8 @@ import secrets
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_FOLDER = PROJECT_ROOT / "database" / "data"
-
-# Every service keeps its own SQLite database (the team's design: one database per service).
-DATABASE_PATHS = {
-    "threats": os.environ.get("THREATS_DATABASE_PATH", str(DATA_FOLDER / "threats.db")),
-}
+# All services use the team's one shared SQLite database, set up in the database/ folder
+# (database/data/security_system.db, or the SYSTEM_DATABASE_PATH environment variable).
 
 # Port of each service. 5000 is skipped because macOS uses it for AirPlay Receiver.
 SERVICE_PORTS = {

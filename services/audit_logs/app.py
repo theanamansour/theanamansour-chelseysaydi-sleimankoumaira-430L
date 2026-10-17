@@ -26,6 +26,7 @@ from services.audit_logs.validation import (
     validate_create,
     validate_search,
 )
+from shared import config
 
 ROUTE_PREFIX = "/chelsea-saydi"
 SERVICE_NAME = "Security Audit Logging Service"
@@ -50,8 +51,8 @@ def create_app(database_path=None, internal_service_key=None):
     app = Flask(__name__)
     app.config["DATABASE_PATH"] = str(database_path or get_database_path())
     app.config["SERVICE_NAME"] = SERVICE_NAME
-    app.config["INTERNAL_SERVICE_KEY"] = internal_service_key or os.environ.get(
-        "INTERNAL_SERVICE_KEY", "dev-only-internal-service-key"
+    app.config["INTERNAL_SERVICE_KEY"] = (
+        internal_service_key or config.internal_service_key()
     )
     app.json.sort_keys = False
     init_db(app.config["DATABASE_PATH"])

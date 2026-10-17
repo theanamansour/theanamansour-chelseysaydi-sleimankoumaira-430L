@@ -101,17 +101,17 @@ def create_app(database_path=None):
         ):
             return error("Employees may only report incidents as themselves", 403)
 
-        try:
-            if g.current_user["role"] == ADMIN:
+        if g.current_user["role"] == ADMIN:
+            try:
                 reporter = integrations.get_user(
                     data["reporter_id"], g.authorization
                 )
-                if reporter is None:
-                    return error("Reporter user not found", 400)
-            if not integrations.asset_exists(data["asset_id"], g.authorization):
-                return error("Affected asset not found", 400)
-        except integrations.ServiceUnavailable as exc:
-            return service_problem(exc)
+            except integrations.ServiceUnavailable as exc:
+                return service_problem(exc)
+            if reporter is None:
+                return error("Reporter user not found", 400)
+        if not repository().asset_exists(data["asset_id"]):
+            return error("Affected asset not found", 400)
 
         try:
             incident = repository().create(data)
@@ -161,6 +161,7 @@ def create_app(database_path=None):
             return error("Assigned user must have the Security Analyst role", 400)
 
         incident = repository().assign(incident_id, analyst_id)
+        integrations.notify_assigned_analyst(incident)
         audit(
             "INCIDENT_ASSIGNED",
             f"Incident {incident_id} assigned to analyst {analyst_id}",

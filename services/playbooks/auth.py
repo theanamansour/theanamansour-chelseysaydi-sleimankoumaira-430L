@@ -4,6 +4,8 @@ from functools import wraps
 import requests
 from flask import g, jsonify, request
 
+from shared import config
+
 ADMIN = "Security Administrator"
 ANALYST = "Security Analyst"
 EMPLOYEE = "Regular Employee"
@@ -14,9 +16,6 @@ USER_SERVICE_URL = os.environ.get(
 )
 AUDIT_SERVICE_URL = os.environ.get(
     "AUDIT_SERVICE_URL", "http://127.0.0.1:5005/chelsea-saydi/logs"
-)
-INTERNAL_SERVICE_KEY = os.environ.get(
-    "INTERNAL_SERVICE_KEY", "dev-only-internal-service-key"
 )
 
 
@@ -38,7 +37,7 @@ def send_audit_log(user_id, action, description, severity="Information"):
                 "severity": severity,
                 "related_service": "Security Playbook and Response Service",
             },
-            headers={"X-Service-Key": INTERNAL_SERVICE_KEY},
+            headers={"X-Service-Key": config.internal_service_key()},
             timeout=2,
         )
     except requests.RequestException:

@@ -229,7 +229,10 @@ Open → Under Investigation → Mitigated → Resolved → Closed
 Skipped, reversed, or post-closure transitions are rejected. Closing an incident
 automatically records its resolution date.
 
-Start Service 1 and Service 2 first, then run Service 3 from the repository root:
+Affected assets are checked directly in the shared `assets` table. Assigning an
+incident sends the analyst an "Incident Assignment" notification through Service 8.
+
+Start Service 1 first, then run Service 3 from the repository root:
 
 ```bash
 python -m services.incidents.app
@@ -239,8 +242,8 @@ Service 3 listens on `http://127.0.0.1:5003`. Its peer-service locations can be
 configured with:
 
 - `USER_SERVICE_URL`
-- `ASSET_SERVICE_URL`
 - `AUDIT_SERVICE_URL`
+- `NOTIFICATIONS_URL`
 - `INTERNAL_SERVICE_KEY`
 - `INCIDENT_SERVICE_PORT`
 

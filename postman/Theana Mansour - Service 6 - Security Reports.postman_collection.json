@@ -1,0 +1,1336 @@
+{
+  "info": {
+    "_postman_id": "0f55da8c-bf08-456e-a54d-3a6ab0ed419d",
+    "name": "Theana Mansour - Service 6 - Security Reports",
+    "description": "Service 6 – Security Reports (by Theana Mansour)\n\nRun after the Service 1 collection, on the same database:\n\n1. load the sample data with `python -m services.reports.sample_data`\n    \n2. start Service 1 (port 5001) and Service 6 (port 5006)\n    \n3. set admin_login and admin_password in Variables\n    \n4. send the requests in order (0 to 29).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0- Login as admin (run this first)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.collectionVariables.set('token', pm.response.json().token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"{{admin_login}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "login"
+          ]
+        },
+        "description": "Logs in with admin_login / admin_password from the Variables and saves the token."
+      },
+      "response": []
+    },
+    {
+      "name": "1- Analyst logs in",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.collectionVariables.set('analyst_token', pm.response.json().token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"knassar\",\n  \"password\": \"Passw0rd1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "login"
+          ]
+        },
+        "description": "Karim Nassar (Security Analyst) from the Service 1 collection. Saves analyst_token."
+      },
+      "response": []
+    },
+    {
+      "name": "2- Auditor logs in",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.collectionVariables.set('auditor_token', pm.response.json().token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"msaad\",\n  \"password\": \"Passw0rd1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "login"
+          ]
+        },
+        "description": "Maya Saad (Auditor) from the Service 1 collection. Saves auditor_token."
+      },
+      "response": []
+    },
+    {
+      "name": "3- Employee logs in",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.collectionVariables.set('employee_token', pm.response.json().token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"rhaddad\",\n  \"password\": \"Passw0rd1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/theana-mansour/users/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "users",
+            "login"
+          ]
+        },
+        "description": "Rami Haddad (Regular Employee) from the Service 1 collection. Saves employee_token."
+      },
+      "response": []
+    },
+    {
+      "name": "4- Admin gets the summary report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Report has users, assets, open_incidents, critical_threats', function () { pm.expect(pm.response.json().data).to.include.all.keys(\"users\", \"assets\", \"open_incidents\", \"critical_threats\"); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/summary",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "summary"
+          ]
+        },
+        "description": "Security Administrators can generate the summary report."
+      },
+      "response": []
+    },
+    {
+      "name": "5- Auditor gets the summary report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{auditor_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/summary",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "summary"
+          ]
+        },
+        "description": "Auditors can view every report (read-only)."
+      },
+      "response": []
+    },
+    {
+      "name": "6- Analyst tries to get the summary report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+              "pm.test('Message: User does not have permission to perform this operation', function () { pm.expect(pm.response.json().message).to.eql('User does not have permission to perform this operation'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{analyst_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/summary",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "summary"
+          ]
+        },
+        "description": "Only Security Administrators and Auditors can generate reports."
+      },
+      "response": []
+    },
+    {
+      "name": "7- Admin gets the incident report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Report has total_incidents, by_severity, by_status', function () { pm.expect(pm.response.json().data).to.include.all.keys(\"total_incidents\", \"by_severity\", \"by_status\"); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/incidents",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "incidents"
+          ]
+        },
+        "description": "Security Administrators can generate the incident report."
+      },
+      "response": []
+    },
+    {
+      "name": "8- Auditor gets the incident report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{auditor_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/incidents",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "incidents"
+          ]
+        },
+        "description": "Auditors can view every report (read-only)."
+      },
+      "response": []
+    },
+    {
+      "name": "9- Employee tries to get the incident report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+              "pm.test('Message: User does not have permission to perform this operation', function () { pm.expect(pm.response.json().message).to.eql('User does not have permission to perform this operation'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employee_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/incidents",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "incidents"
+          ]
+        },
+        "description": "Only Security Administrators and Auditors can generate reports."
+      },
+      "response": []
+    },
+    {
+      "name": "10- Admin gets the asset report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Report has total_assets, critical_assets, by_type', function () { pm.expect(pm.response.json().data).to.include.all.keys(\"total_assets\", \"critical_assets\", \"by_type\"); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/assets",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "assets"
+          ]
+        },
+        "description": "Security Administrators can generate the asset report."
+      },
+      "response": []
+    },
+    {
+      "name": "11- Auditor gets the asset report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{auditor_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/assets",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "assets"
+          ]
+        },
+        "description": "Auditors can view every report (read-only)."
+      },
+      "response": []
+    },
+    {
+      "name": "12- Analyst tries to get the asset report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+              "pm.test('Message: User does not have permission to perform this operation', function () { pm.expect(pm.response.json().message).to.eql('User does not have permission to perform this operation'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{analyst_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/assets",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "assets"
+          ]
+        },
+        "description": "Only Security Administrators and Auditors can generate reports."
+      },
+      "response": []
+    },
+    {
+      "name": "13- Admin gets the threat report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Report has total_threats, by_severity, by_type, recent_threats', function () { pm.expect(pm.response.json().data).to.include.all.keys(\"total_threats\", \"by_severity\", \"by_type\", \"recent_threats\"); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/threats",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "threats"
+          ]
+        },
+        "description": "Security Administrators can generate the threat report."
+      },
+      "response": []
+    },
+    {
+      "name": "14- Auditor gets the threat report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{auditor_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/threats",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "threats"
+          ]
+        },
+        "description": "Auditors can view every report (read-only)."
+      },
+      "response": []
+    },
+    {
+      "name": "15- Employee tries to get the threat report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+              "pm.test('Message: User does not have permission to perform this operation', function () { pm.expect(pm.response.json().message).to.eql('User does not have permission to perform this operation'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employee_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/threats",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "threats"
+          ]
+        },
+        "description": "Only Security Administrators and Auditors can generate reports."
+      },
+      "response": []
+    },
+    {
+      "name": "16- Admin gets the vulnerability report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Report has total_vulnerabilities, by_severity, by_status, critical_vulnerabilities', function () { pm.expect(pm.response.json().data).to.include.all.keys(\"total_vulnerabilities\", \"by_severity\", \"by_status\", \"critical_vulnerabilities\"); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/vulnerabilities",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "vulnerabilities"
+          ]
+        },
+        "description": "Security Administrators can generate the vulnerability report."
+      },
+      "response": []
+    },
+    {
+      "name": "17- Auditor gets the vulnerability report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{auditor_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/vulnerabilities",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "vulnerabilities"
+          ]
+        },
+        "description": "Auditors can view every report (read-only)."
+      },
+      "response": []
+    },
+    {
+      "name": "18- Analyst tries to get the vulnerability report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+              "pm.test('Message: User does not have permission to perform this operation', function () { pm.expect(pm.response.json().message).to.eql('User does not have permission to perform this operation'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{analyst_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/vulnerabilities",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "vulnerabilities"
+          ]
+        },
+        "description": "Only Security Administrators and Auditors can generate reports."
+      },
+      "response": []
+    },
+    {
+      "name": "19- Admin gets the activity report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Report has total_activities, login_attempts, failed_logins, most_performed_actions', function () { pm.expect(pm.response.json().data).to.include.all.keys(\"total_activities\", \"login_attempts\", \"failed_logins\", \"most_performed_actions\"); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/activity",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "activity"
+          ]
+        },
+        "description": "Security Administrators can generate the activity report."
+      },
+      "response": []
+    },
+    {
+      "name": "20- Auditor gets the activity report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{auditor_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/activity",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "activity"
+          ]
+        },
+        "description": "Auditors can view every report (read-only)."
+      },
+      "response": []
+    },
+    {
+      "name": "21- Employee tries to get the activity report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () { pm.response.to.have.status(403); });",
+              "pm.test('Message: User does not have permission to perform this operation', function () { pm.expect(pm.response.json().message).to.eql('User does not have permission to perform this operation'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{employee_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/activity",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "activity"
+          ]
+        },
+        "description": "Only Security Administrators and Auditors can generate reports."
+      },
+      "response": []
+    },
+    {
+      "name": "22- Report without token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/summary",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "summary"
+          ]
+        },
+        "description": "A login token is required."
+      },
+      "response": []
+    },
+    {
+      "name": "23- Report with fake token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 401', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{fake_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/summary",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "summary"
+          ]
+        },
+        "description": "Invalid tokens are rejected by Service 1."
+      },
+      "response": []
+    },
+    {
+      "name": "24- Threat report with limit 2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('At most 2 recent threats', function () { pm.expect(pm.response.json().data.recent_threats.length).to.be.at.most(2); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/threats?limit=2",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "threats"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "2"
+            }
+          ]
+        },
+        "description": "limit (1-50) sets how many recent records are listed."
+      },
+      "response": []
+    },
+    {
+      "name": "25- Limit 0",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/threats?limit=0",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "threats"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "0"
+            }
+          ]
+        },
+        "description": "limit must be between 1 and 50."
+      },
+      "response": []
+    },
+    {
+      "name": "26- Limit 51",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/threats?limit=51",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "threats"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "51"
+            }
+          ]
+        },
+        "description": "limit must be between 1 and 50."
+      },
+      "response": []
+    },
+    {
+      "name": "27- Limit that is not a number",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/threats?limit=abc",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "threats"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "abc"
+            }
+          ]
+        },
+        "description": "limit must be a whole number."
+      },
+      "response": []
+    },
+    {
+      "name": "28- Unknown parameter",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/threats?days=7",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "threats"
+          ],
+          "query": [
+            {
+              "key": "days",
+              "value": "7"
+            }
+          ]
+        },
+        "description": "Only limit is accepted."
+      },
+      "response": []
+    },
+    {
+      "name": "29- POST is not allowed",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 405', function () { pm.response.to.have.status(405); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{reports_url}}/theana-mansour/reports/summary",
+          "host": [
+            "{{reports_url}}"
+          ],
+          "path": [
+            "theana-mansour",
+            "reports",
+            "summary"
+          ]
+        },
+        "description": "Reports are read-only (GET only)."
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5001"
+    },
+    {
+      "key": "reports_url",
+      "value": "http://127.0.0.1:5006"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "analyst_token",
+      "value": ""
+    },
+    {
+      "key": "auditor_token",
+      "value": ""
+    },
+    {
+      "key": "employee_token",
+      "value": ""
+    },
+    {
+      "key": "admin_login",
+      "value": "theanamansour"
+    },
+    {
+      "key": "admin_password",
+      "value": ""
+    },
+    {
+      "key": "fake_token",
+      "value": "not-a-real-token"
+    }
+  ]
+}

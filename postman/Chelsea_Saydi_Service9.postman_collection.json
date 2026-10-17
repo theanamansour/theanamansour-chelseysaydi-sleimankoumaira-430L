@@ -1,0 +1,168 @@
+{
+  "info": {
+    "_postman_id": "9f11a48c-c6a9-4884-b285-15282bca4c88",
+    "name": "Chelsea Saydi - Service 9 Playbook Response Automation",
+    "description": "Sprint I API evidence collection for Security Playbook and Response Automation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5009/chelsea-saydi"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "playbookId",
+      "value": "1"
+    },
+    {
+      "key": "actionId",
+      "value": "1"
+    },
+    {
+      "key": "analystId",
+      "value": "2"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 - Create Response Playbook",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"playbook_name\": \"Phishing Response\",\n  \"description\": \"Standard response procedure for phishing emails.\",\n  \"incident_category\": \"Phishing\",\n  \"severity\": \"High\"\n}"
+        },
+        "url": "{{baseUrl}}/playbooks",
+        "description": "Creates a playbook as a Security Administrator."
+      }
+    },
+    {
+      "name": "2 - Retrieve All Playbooks",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/playbooks",
+        "description": "Returns all playbook summaries."
+      }
+    },
+    {
+      "name": "3 - Retrieve Specific Playbook",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/playbooks/{{playbookId}}",
+        "description": "Returns a playbook, ordered actions, and execution history."
+      }
+    },
+    {
+      "name": "4 - Add Response Action",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"action_description\": \"Collect and preserve the suspicious email.\",\n  \"step_number\": 1\n}"
+        },
+        "url": "{{baseUrl}}/playbooks/{{playbookId}}/actions",
+        "description": "Adds a uniquely numbered response step."
+      }
+    },
+    {
+      "name": "5A - Start Response Action",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"In Progress\",\n  \"assigned_user_id\": {{analystId}}\n}"
+        },
+        "url": "{{baseUrl}}/actions/{{actionId}}/status",
+        "description": "Moves an action from Pending to In Progress and assigns an analyst."
+      }
+    },
+    {
+      "name": "5B - Complete Response Action",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Completed\"\n}"
+        },
+        "url": "{{baseUrl}}/actions/{{actionId}}/status",
+        "description": "Completes an in-progress action and records its completion date."
+      }
+    },
+    {
+      "name": "6 - Delete Playbook",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/playbooks/{{playbookId}}",
+        "description": "Administrator-only playbook deletion."
+      }
+    },
+    {
+      "name": "Authorization - Unauthorized Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/playbooks/{{playbookId}}",
+        "description": "Use a non-administrator token to demonstrate a 403 response."
+      }
+    },
+    {
+      "name": "Validation - Skip Action Status",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Completed\"\n}"
+        },
+        "url": "{{baseUrl}}/actions/{{actionId}}/status",
+        "description": "Demonstrates rejection of Pending directly to Completed."
+      }
+    }
+  ]
+}

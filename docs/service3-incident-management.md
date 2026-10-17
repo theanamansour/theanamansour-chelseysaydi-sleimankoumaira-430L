@@ -14,7 +14,8 @@ All endpoints require `Authorization: Bearer <token>`. Success responses use
 - Body: `title`, `description`, `category`, `severity`, `reporter_id`, `asset_id`
 - Severity: `Low`, `Medium`, `High`, or `Critical`
 - Response: `201` with the stored incident
-- Validation: employees can only use their own user ID; Service 2 must confirm the asset
+- Validation: employees can only use their own user ID; the asset must exist in
+  the shared `assets` table
 
 ### Retrieve All Incidents
 - Method/route: `GET /incidents`
@@ -33,7 +34,8 @@ All endpoints require `Authorization: Bearer <token>`. Success responses use
 - Role: Security Administrator
 - Body: `{"analyst_id": 2}`
 - Validation: Service 1 must confirm the user has the Security Analyst role
-- Side effect: generates an `INCIDENT_ASSIGNED` audit event
+- Side effects: generates an `INCIDENT_ASSIGNED` audit event and sends the analyst an
+  `Incident Assignment` notification through Service 8
 
 ### Update Incident Status
 - Method/route: `PUT /incidents/{id}/status`
@@ -55,7 +57,7 @@ All endpoints require `Authorization: Bearer <token>`. Success responses use
 - `401`: missing, invalid, or expired authentication token
 - `403`: authenticated role or resource ownership is insufficient
 - `404`: incident does not exist
-- `503`: required User or Asset service is unavailable
+- `503`: the User service is unavailable
 
 SQL statements use bound parameters. The database also has `CHECK` and foreign-key
 constraints as a second validation layer.

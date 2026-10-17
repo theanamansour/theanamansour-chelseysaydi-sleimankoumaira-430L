@@ -25,8 +25,10 @@ USERS = {
 
 
 @pytest.fixture
-def database_path(tmp_path):
-    return tmp_path / "incidents.db"
+def database_path(tmp_path, seed_database):
+    path = tmp_path / "security_system.db"
+    seed_database(path, asset_ids=(8,))
+    return path
 
 
 @pytest.fixture
@@ -62,9 +64,6 @@ def client(database_path, monkeypatch, audit_events):
         integrations,
         "get_user",
         lambda user_id, _authorization: USERS.get(user_id),
-    )
-    monkeypatch.setattr(
-        integrations, "asset_exists", lambda asset_id, _authorization: asset_id == 8
     )
     return create_app(database_path).test_client()
 
@@ -131,6 +130,31 @@ def test_missing_asset_is_rejected(client):
     assert response.get_json()["message"] == "Affected asset not found"
 
 
+def test_employee_report_checks_asset_in_shared_database(client, monkeypatch):
+    def asset_service_must_not_be_called(*_args, **_kwargs):
+        raise AssertionError("Service 2 should not be called to check the asset")
+
+    monkeypatch.setattr(integrations.requests, "get", asset_service_must_not_be_called)
+
+    assert create_incident(client).status_code == 201
+    response = create_incident(client, data={**INCIDENT, "asset_id": 9})
+    assert response.status_code == 400
+    assert response.get_json()["message"] == "Affected asset not found"
+
+
+def test_foreign_keys_are_enforced_by_the_database(database_path):
+    create_app(database_path)
+    with sqlite3.connect(database_path) as db, pytest.raises(sqlite3.IntegrityError):
+        db.execute("PRAGMA foreign_keys = ON")
+        db.execute(
+            """
+            INSERT INTO incidents
+                (title, description, category, severity, reporter_id, asset_id)
+            VALUES ('Test', 'Unknown reporter', 'Test', 'Low', 999, 8)
+            """
+        )
+
+
 def test_employee_cannot_report_as_someone_else(client):
     response = create_incident(client, data={**INCIDENT, "reporter_id": 1})
     assert response.status_code == 403
@@ -178,6 +202,23 @@ def test_only_admin_can_assign_security_analyst(client, audit_events):
         headers=auth("analyst"),
     ).status_code == 403
     assert any(event[1] == "INCIDENT_ASSIGNED" for event in audit_events)
+
+
+def test_assignment_notifies_the_analyst(client, sent_notifications):
+    create_incident(client)
+    assign_incident(client, analyst_id=3)
+    assert sent_notifications == []
+
+    assert assign_incident(client).status_code == 200
+    assert sent_notifications == [
+        {
+            "user_id": 2,
+            "title": "Incident assigned",
+            "message": "Incident 1: Phishing email opened has been assigned to you.",
+            "notification_type": "Incident Assignment",
+            "severity": "High",
+        }
+    ]
 
 
 def test_complete_status_lifecycle_sets_resolution_date(client):

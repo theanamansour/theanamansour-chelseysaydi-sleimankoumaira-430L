@@ -73,13 +73,17 @@ caller and verifies tokens. Domain services validate related records through API
 for example, Incident Management validates reporters through Service 1 and affected
 assets through Service 2. Security-relevant operations are forwarded to Service 5.
 
-SQLite is used for local Sprint I persistence. SQL statements use bound parameters to
-prevent SQL injection, while API validation and database constraints reject malformed
-or unsupported values.
+All services store their tables in one shared SQLite database,
+`database/data/security_system.db`. The schema files in `database/schema/` define
+every table, and SQLite enforces the foreign keys between them (for example,
+`incidents.reporter_id → users.id` and `incidents.asset_id → assets.asset_id`).
+SQL statements use bound parameters to prevent SQL injection, while API validation
+and database constraints reject malformed or unsupported values.
 
 ## Repository Layout
 
 ```text
+database/       Shared database connection, schema files, and initializer
 services/       Service source code
 tests/          Automated API and database tests
 docs/           API documentation
@@ -100,7 +104,11 @@ cd theanamansour-chelseysaydi-sleimankoumaira-430L
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+python -m database.init_db
 ```
+
+Every service must run with the same `SYSTEM_DATABASE_PATH` and the same
+`INTERNAL_SERVICE_KEY`; see `.env.example`.
 
 Never commit generated database files, virtual environments, API tokens, or secret
 keys.
@@ -221,7 +229,10 @@ Open → Under Investigation → Mitigated → Resolved → Closed
 Skipped, reversed, or post-closure transitions are rejected. Closing an incident
 automatically records its resolution date.
 
-Start Service 1 and Service 2 first, then run Service 3 from the repository root:
+Affected assets are checked directly in the shared `assets` table. Assigning an
+incident sends the analyst an "Incident Assignment" notification through Service 8.
+
+Start Service 1 first, then run Service 3 from the repository root:
 
 ```bash
 python -m services.incidents.app
@@ -231,8 +242,8 @@ Service 3 listens on `http://127.0.0.1:5003`. Its peer-service locations can be
 configured with:
 
 - `USER_SERVICE_URL`
-- `ASSET_SERVICE_URL`
 - `AUDIT_SERVICE_URL`
+- `NOTIFICATIONS_URL`
 - `INTERNAL_SERVICE_KEY`
 - `INCIDENT_SERVICE_PORT`
 
@@ -266,6 +277,31 @@ Detailed documentation is available at
 `docs/service5-security-audit-logging.md`. The Postman collection is
 `postman/Chelsea_Saydi_Service5.postman_collection.json`.
 
+## Service 9: Security Playbook and Response Automation
+
+Service 9 is implemented by Chelsea Saydi. It provides:
+
+- `POST /chelsea-saydi/playbooks` — create a response playbook
+- `GET /chelsea-saydi/playbooks` — retrieve all playbooks
+- `GET /chelsea-saydi/playbooks/{id}` — retrieve a playbook and its actions
+- `POST /chelsea-saydi/playbooks/{id}/actions` — add an ordered action
+- `PUT /chelsea-saydi/actions/{id}/status` — update action progress
+- `DELETE /chelsea-saydi/playbooks/{id}` — delete a playbook
+
+Start Services 1 and 5, then run:
+
+```bash
+python -m services.playbooks.app
+```
+
+Service 9 listens on `http://127.0.0.1:5009`. It enforces ordered action execution,
+the `Pending → In Progress → Completed` lifecycle, completion timestamps, and permanent
+status history.
+
+Detailed documentation is available at
+`docs/service9-playbook-response-automation.md`. The Postman collection is
+`postman/Chelsea_Saydi_Service9.postman_collection.json`.
+
 ## Testing
 
 Run the automated test suite from the repository root:
@@ -274,7 +310,8 @@ Run the automated test suite from the repository root:
 python -m pytest -q
 ```
 
-Tests use temporary databases and mocked peer services, so test runs do not alter
+Tests build a temporary copy of the shared schema, seeded with the users and assets
+the foreign keys require, and mock peer services, so test runs do not alter
 demonstration data. Postman should be used for final execution evidence and screenshots
 against the running services.
 

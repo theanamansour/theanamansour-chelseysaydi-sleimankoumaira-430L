@@ -1,4 +1,4 @@
--- Service 9: Security Playbook and Response Automation Service
+-- Service 9: Security Playbook and Response Automation Service (Chelsea Saydi)
 
 CREATE TABLE IF NOT EXISTS playbooks (
     playbook_id      INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,3 +33,20 @@ CREATE INDEX IF NOT EXISTS response_actions_playbook
     ON response_actions(playbook_id);
 CREATE INDEX IF NOT EXISTS response_actions_assigned_user
     ON response_actions(assigned_user_id);
+
+CREATE TABLE IF NOT EXISTS response_action_history (
+    history_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    action_id        INTEGER NOT NULL,
+    previous_status  TEXT,
+    new_status       TEXT NOT NULL
+                     CHECK(new_status IN ('Pending', 'In Progress', 'Completed')),
+    changed_by       INTEGER NOT NULL,
+    assigned_user_id INTEGER,
+    changed_at       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(action_id) REFERENCES response_actions(action_id) ON DELETE CASCADE,
+    FOREIGN KEY(changed_by) REFERENCES users(id),
+    FOREIGN KEY(assigned_user_id) REFERENCES users(id)
+);
+
+CREATE INDEX IF NOT EXISTS response_action_history_action
+    ON response_action_history(action_id);

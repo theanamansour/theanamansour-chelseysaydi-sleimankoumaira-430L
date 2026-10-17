@@ -39,8 +39,10 @@ IDENTITIES = {
 
 
 @pytest.fixture
-def database_path(tmp_path):
-    return tmp_path / "audit.db"
+def database_path(tmp_path, seed_database):
+    path = tmp_path / "security_system.db"
+    seed_database(path)
+    return path
 
 
 @pytest.fixture
@@ -129,6 +131,20 @@ def test_unknown_user_is_allowed_for_failed_authentication_events(client):
     )
     assert response.status_code == 201
     assert response.get_json()["data"]["user_id"] is None
+
+
+def test_log_for_unknown_user_is_rejected(client):
+    response = create_log(client, data={**LOG, "user_id": 999})
+    assert response.status_code == 400
+    assert response.get_json()["message"] == "User with ID 999 not found"
+
+
+def test_user_with_logs_cannot_be_deleted(client, database_path):
+    create_log(client)
+
+    with sqlite3.connect(database_path) as db, pytest.raises(sqlite3.IntegrityError):
+        db.execute("PRAGMA foreign_keys = ON")
+        db.execute("DELETE FROM users WHERE id = 3")
 
 
 def test_retrieve_all_is_admin_and_auditor_only(client):

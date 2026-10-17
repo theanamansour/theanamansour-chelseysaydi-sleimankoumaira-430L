@@ -36,6 +36,15 @@ class IncidentRepository:
     def __init__(self, database_path):
         self.database_path = database_path
 
+    def asset_exists(self, asset_id):
+        if asset_id > MAX_SQLITE_ID:
+            return False
+        with get_db(self.database_path) as db:
+            row = db.execute(
+                "SELECT 1 FROM assets WHERE asset_id = ?", (asset_id,)
+            ).fetchone()
+        return row is not None
+
     def create(self, data):
         with get_db(self.database_path) as db:
             cursor = db.execute(

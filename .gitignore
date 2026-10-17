@@ -4,8 +4,24 @@ __pycache__/
 .venv/
 venv/
 *.db
-.env
-.DS_Store
 *.sqlite3
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Local secrets (never commit them)
 .secret_key
 .internal_service_key
+
+# Test output
+*.log
+.coverage
+coverage.xml
+htmlcov/
+
+# Local Postman copy with dev tokens filled in (tokens expire, never commit them)
+postman/local/
+
+# Local copy of teammates' branches used for integration testing
+.worktrees/

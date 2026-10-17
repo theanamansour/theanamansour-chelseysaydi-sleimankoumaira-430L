@@ -113,6 +113,100 @@ Every service must run with the same `SYSTEM_DATABASE_PATH` and the same
 Never commit generated database files, virtual environments, API tokens, or secret
 keys.
 
+## Shared Database
+
+All services use one SQLite file, `database/data/security_system.db`. You can
+override it with `SYSTEM_DATABASE_PATH`. The generated `.db` file is never committed;
+the SQL files in `database/schema/` define the tables. Create or update every table
+from the repository root:
+
+```bash
+python -m database.init_db
+```
+
+Open connections with `database.connection.get_db`, which turns on
+`PRAGMA foreign_keys = ON`. See `database/README.md` for details.
+
+## Service 1: Users and Identity Management
+
+Service 1 is implemented by Theana Mansour. It provides:
+
+- `POST /theana-mansour/users/register` — register a user
+- `POST /theana-mansour/users/login` — log in and receive a one-hour token
+- `PUT /theana-mansour/users/{id}` — update name, email or department
+- `DELETE /theana-mansour/users/{id}` — delete a user (administrator)
+- `GET /theana-mansour/users` — retrieve all users
+- `GET /theana-mansour/users/{username}` — retrieve one user
+- `PUT /theana-mansour/users/{id}/role` and `/status` — administrator role and
+  account-status changes
+- `POST /theana-mansour/auth/verify` — token check used by the other services
+
+Create the first administrator, then start the service:
+
+```bash
+python -m services.users.create_admin
+python -m services.users.app
+```
+
+Service 1 listens on `http://127.0.0.1:5001`. Start Service 1 and Service 5 with the
+same `INTERNAL_SERVICE_KEY` so Service 5 accepts Service 1's audit events. Detailed
+documentation is in `docs/service1-users-identity.md`. Its Postman requests and test
+cases are in `postman/Theana_Mansour_Service1.postman_collection.json`.
+
+## Service 6: Security Reports
+
+Service 6 is implemented by Theana Mansour. It builds read-only reports from the shared
+database for Security Administrators and Auditors:
+
+- `GET /theana-mansour/reports/summary` — overall security status
+- `GET /theana-mansour/reports/incidents` — incidents by severity and status
+- `GET /theana-mansour/reports/assets` — assets by type, critical assets
+- `GET /theana-mansour/reports/threats` — threats by severity and type, recent threats
+- `GET /theana-mansour/reports/vulnerabilities` — vulnerabilities by severity and status
+- `GET /theana-mansour/reports/activity` — logins, failed logins, most performed actions
+
+Start Service 1 first (tokens are checked through it), then run:
+
+```bash
+python -m services.reports.app
+```
+
+Service 6 listens on `http://127.0.0.1:5006`. Optional demo data:
+`python -m services.reports.sample_data`. Detailed documentation is in
+`docs/service6-security-reports.md`. Its Postman requests and test cases are in the
+collection `postman/Theana_Mansour_Service6.postman_collection.json`.
+
+## Service 7: Vulnerability Management
+
+Service 7 is implemented by Theana Mansour. It tracks vulnerabilities found on assets:
+
+- `POST /theana-mansour/vulnerabilities` — add a vulnerability (administrator)
+- `GET /theana-mansour/vulnerabilities` — retrieve all vulnerabilities
+- `GET /theana-mansour/vulnerabilities/{id}` — retrieve one vulnerability
+- `PUT /theana-mansour/vulnerabilities/{id}` — update details and advance the status
+- `GET /theana-mansour/vulnerabilities/search` — search by CVE, severity, status or asset
+- `DELETE /theana-mansour/vulnerabilities/{id}` — delete a vulnerability (administrator)
+
+The enforced lifecycle is:
+
+```text
+Open → Under Investigation → In Progress → Resolved → Closed
+```
+
+The severity must match the CVSS score (Low 0.0–3.9, Medium 4.0–6.9, High 7.0–8.9,
+Critical 9.0–10.0). High and Critical vulnerabilities send a Vulnerability Alert
+through Service 8.
+
+Start Service 1 first, then run:
+
+```bash
+python -m services.vulnerabilities.app
+```
+
+Service 7 listens on `http://127.0.0.1:5007`. Detailed documentation is in
+`docs/service7-vulnerability-management.md`. Its Postman requests and test cases are in
+`postman/Theana_Mansour_Service7.postman_collection.json`.
+
 ## Service 3: Incident Management
 
 This branch contains Service 3, implemented by Chelsea Saydi. It provides:

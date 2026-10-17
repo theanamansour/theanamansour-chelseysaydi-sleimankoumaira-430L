@@ -1,0 +1,165 @@
+{
+  "info": {
+    "_postman_id": "d1bec688-b9e1-48ce-9d9e-92b4e0ec03ed",
+    "name": "Chelsea Saydi - Service 5 Security Audit Logging",
+    "description": "Sprint I API evidence collection for the Security Audit Logging Service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5005/chelsea-saydi"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "serviceKey",
+      "value": "dev-only-internal-service-key"
+    },
+    {
+      "key": "logId",
+      "value": "1"
+    },
+    {
+      "key": "userId",
+      "value": "3"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 - Create Log Record",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Service-Key",
+            "value": "{{serviceKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": 3,\n  \"action\": \"INCIDENT_CREATED\",\n  \"description\": \"Incident 12 was reported\",\n  \"severity\": \"Information\",\n  \"related_service\": \"Incident Management Service\"\n}"
+        },
+        "url": "{{baseUrl}}/logs",
+        "description": "Creates an immutable security log from a trusted service."
+      }
+    },
+    {
+      "name": "2 - Retrieve All Logs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/logs",
+        "description": "Returns all logs to administrators and auditors."
+      }
+    },
+    {
+      "name": "3 - Retrieve Specific Log",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/logs/{{logId}}",
+        "description": "Returns one complete audit record."
+      }
+    },
+    {
+      "name": "4 - Search Logs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/logs/search?severity=Warning&related_service=Identity",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "logs",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "severity",
+              "value": "Warning"
+            },
+            {
+              "key": "related_service",
+              "value": "Identity"
+            }
+          ]
+        },
+        "description": "Filters by user_id, date, action, severity, or related_service."
+      }
+    },
+    {
+      "name": "5 - Delete Log",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/logs/{{logId}}",
+        "description": "Administrator-only deletion. The deletion itself is logged."
+      }
+    },
+    {
+      "name": "6 - Retrieve Logs By User",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/logs/user/{{userId}}",
+        "description": "Returns all audit activity for one user."
+      }
+    },
+    {
+      "name": "Authorization - Unauthorized Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/logs/{{logId}}",
+        "description": "Use an analyst, employee, or auditor token to demonstrate a 403 response."
+      }
+    },
+    {
+      "name": "Validation - Invalid Severity",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Service-Key",
+            "value": "{{serviceKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": 3,\n  \"action\": \"TEST\",\n  \"description\": \"Invalid severity demonstration\",\n  \"severity\": \"Low\",\n  \"related_service\": \"Postman\"\n}"
+        },
+        "url": "{{baseUrl}}/logs",
+        "description": "Demonstrates rejection of a severity outside the supported values."
+      }
+    }
+  ]
+}
